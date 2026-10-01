@@ -208,6 +208,10 @@ def fmt_pct(v) -> str:
 def signed_usd(v) -> str:
     return MISSING if v is None else ("+" if v >= 0 else "") + fmt_usd(v)
 
+def md_money(text: str) -> str:
+    """Escape $ for st.markdown, st.caption and st.success: they read text between two $ signs as LaTeX maths."""
+    return text.replace("$", "\\$")
+
 def pnl_html(pnl, pct) -> str:
     if pnl is None:
         return "<span style='color:#94A3B8;'>Profit unavailable: the live price did not load</span>"
@@ -358,7 +362,7 @@ with st.sidebar:
         except ValueError as exc:
             st.error(str(exc))
         else:
-            st.success(f"✓ {tx_type} {tx_amount:g} {tx_asset} @ ${tx_price:,.2f} on {tx_date}")
+            st.success(md_money(f"✓ {tx_type} {tx_amount:g} {tx_asset} @ ${tx_price:,.2f} on {tx_date}"))
 
     st.divider()
 
@@ -503,21 +507,23 @@ with tab_portfolio:
         with col:
             data = portfolio[asset]
             st.markdown(f"**{label}**")
-            m1, m2 = st.columns(2)
-            with m1:
-                st.metric("Value (USD)", fmt_usd(data["current_value_usd"]))
-            with m2:
-                st.metric("Value (IDR)", fmt_idr(data["current_value_idr"]))
+            # One value per row: two big metrics side by side in a third of the page get cut off.
+            st.metric("Value (USD)", fmt_usd(data["current_value_usd"]))
+            st.metric("Value (IDR)", fmt_idr(data["current_value_idr"]))
             st.markdown(pnl_html(data["pnl_usd"], data["pnl_pct"]), unsafe_allow_html=True)
-            st.caption(
+            st.caption(md_money(
                 f"Realised: {signed_usd(data['realised_pnl_usd'])} · "
                 f"Unrealised: {signed_usd(data['unrealised_pnl_usd'])}"
-            )
+            ))
             if asset != "TOTAL":
                 unit = "BTC" if asset == "BTC" else "g"
-                st.caption(f"Holdings: {data['qty']:.6g} {unit} · Avg cost: {fmt_usd(data['avg_cost'])} per {unit}")
+                st.caption(md_money(
+                    f"Holdings: {data['qty']:.6g} {unit} · Avg cost: {fmt_usd(data['avg_cost'])} per {unit}"
+                ))
             else:
-                st.caption(f"Paid in: {fmt_usd(data['invested'])}, including {fmt_usd(data['fees'])} in fees")
+                st.caption(md_money(
+                    f"Paid in: {fmt_usd(data['invested'])}, including {fmt_usd(data['fees'])} in fees"
+                ))
 
     st.caption(
         "Average-cost method: a sale takes units out at their average cost, including buy fees. "
@@ -622,11 +628,11 @@ with tab_transactions:
             hide_index=True,
         )
         total = portfolio["TOTAL"]
-        st.caption(
+        st.caption(md_money(
             f"Paid in: **{fmt_usd(total['invested'])}** · Realised P&L: **{signed_usd(total['realised_pnl_usd'])}** "
             f"· Fees: **{fmt_usd(total['fees'])}** · {len(df_tx)} transactions. "
             "Trades on the same day are applied in the order they were entered."
-        )
+        ))
 
 
 # ── TAB 5: Stoic Library ─────────────────────────────────────────────────

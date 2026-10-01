@@ -4,6 +4,8 @@
 
 A Streamlit dashboard for a Bitcoin and gold portfolio, in US dollars and rupiah. It tracks what you bought and sold, shows a price forecast together with how often that forecast has been wrong, and picks a Stoic quote to match the day's market mood.
 
+**Live demo:** [stoic-investor.streamlit.app](https://stoic-investor.streamlit.app/). It runs in demo mode: you start from four demo purchases, and any trade you add stays private to your visit. After a quiet spell the app sleeps, so the first visit may take a minute to wake it.
+
 ## What it found: the forecast loses to "no change"
 
 The app forecasts with Prophet. `backtest.py` replays that exact forecast every 14 days from September 2015 to June 2026, 282 times per asset, each time using only the year of prices before that day. It then compares each forecast with what the price actually did, and with the simplest possible guess: that the price stays where it is.
@@ -56,7 +58,7 @@ python scripts/download_quote_sources.py   # optional: lets the tests check ever
 pytest
 ```
 
-The 68 tests cover the profit maths (including the partial-sale and fee cases the first version got wrong), the oversell checks, missing prices, the forecast and the backtest's scoring rules, the quote list, the quote search, a run of the whole app on fake prices, and demo mode keeping each visitor's trades private.
+The 70 tests cover the profit maths (including the partial-sale and fee cases the first version got wrong), the oversell checks, missing prices, the forecast and the backtest's scoring rules, the quote list, the quote search, a run of the whole app on fake prices, and demo mode keeping each visitor's trades private.
 
 ## Re-running the backtest
 

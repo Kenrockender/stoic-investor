@@ -87,15 +87,17 @@ def _seed_demo(conn: sqlite3.Connection):
     count = conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0]
     if count == 0:
         demo = [
-            # asset, tx_type, amount, price_usd, note
-            ("GOLD", "BUY",  125.0,  63.5,   "Initial 125g gold purchase"),   # 125g ≈ 4.02 oz @ $63.5/g
-            ("BTC",  "BUY",  0.05,   42000.0, "DCA entry Jan"),
-            ("BTC",  "BUY",  0.03,   38500.0, "DCA entry Feb (dip)"),
-            ("BTC",  "BUY",  0.02,   55000.0, "DCA entry Mar"),
+            # asset, tx_type, amount, price_usd, note, trade date. Each price is within 0.5% of
+            # that day's Yahoo Finance close, so a fresh demo's profit chart has real history
+            # instead of starting today.
+            ("GOLD", "BUY",  125.0,  63.5,    "Initial 125 g gold purchase", "2023-11-07 00:00:00"),  # 125g ≈ 4.02 oz @ $63.5/g
+            ("BTC",  "BUY",  0.03,   38500.0, "DCA entry Dec",               "2023-12-01 00:00:00"),
+            ("BTC",  "BUY",  0.05,   42000.0, "DCA entry Jan",               "2024-01-28 00:00:00"),
+            ("BTC",  "BUY",  0.02,   55000.0, "DCA entry Aug (dip)",         "2024-08-07 00:00:00"),
         ]
         conn.executemany(
-            """INSERT INTO transactions (asset, tx_type, amount, price_usd, note)
-               VALUES (?, ?, ?, ?, ?)""",
+            """INSERT INTO transactions (asset, tx_type, amount, price_usd, note, ts)
+               VALUES (?, ?, ?, ?, ?, ?)""",
             demo,
         )
         conn.commit()
