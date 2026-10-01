@@ -14,3 +14,6 @@ prophet==1.3.0
 
 # ── Quote search ──────────────────────────────────────────────────────────
 chromadb==1.5.5
+# Streamlit Community Cloud's SQLite (Debian 11, 3.34) is older than ChromaDB needs (3.35);
+# stoic_search.py swaps this newer one in only when the system SQLite is too old.
+pysqlite3-binary==0.5.4.post2; sys_platform == "linux"

@@ -13,6 +13,7 @@ import hashlib
 import json
 import logging
 import re
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -45,6 +46,28 @@ def fingerprint(quotes: list) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:12]
 
 
+CHROMA_MIN_SQLITE = (3, 35, 0)
+
+
+def use_bundled_sqlite_if_needed() -> bool:
+    """
+    ChromaDB needs SQLite 3.35 or newer, and some Linux hosts ship an older one: Streamlit
+    Community Cloud runs Debian 11, with SQLite 3.34. There, requirements.txt installs
+    pysqlite3-binary, whose bundled SQLite is newer, and this puts it in place of the
+    standard sqlite3 module before ChromaDB is imported. Returns True when it did.
+    """
+    import sqlite3
+
+    if sqlite3.sqlite_version_info >= CHROMA_MIN_SQLITE:
+        return False
+    try:
+        import pysqlite3  # type: ignore  # noqa: F401
+    except ImportError:
+        return False
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+    return True
+
+
 class StoicSearch:
     """Finds the quotes that best fit a situation; `mode` is 'semantic' or 'keyword'."""
 
@@ -57,6 +80,7 @@ class StoicSearch:
 
     def _init_chroma(self, persist_dir: str) -> None:
         try:
+            use_bundled_sqlite_if_needed()
             import chromadb
             from chromadb.utils import embedding_functions
 
