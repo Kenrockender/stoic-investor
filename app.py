@@ -9,6 +9,7 @@ Run:  streamlit run app.py
 
 import html
 import logging
+import os
 import time
 import warnings
 from datetime import date, datetime
@@ -35,6 +36,12 @@ from forecaster import PROPHET_AVAILABLE, forecast, forecast_summary, load_backt
 from stoic_search import STOIC_CORPUS, StoicSearch, attribution
 
 MISSING = "—"
+
+# Public demo, e.g. on Streamlit Community Cloud: set STOIC_DEMO = "1" in the app's secrets
+# (root-level secrets become environment variables). Each visitor then gets a private,
+# in-memory copy of the demo portfolio instead of the shared portfolio.db, so nobody sees
+# or changes anyone else's trades.
+DEMO_MODE = os.environ.get("STOIC_DEMO", "").strip().lower() in {"1", "true", "yes"}
 
 # ── Page config ────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -134,8 +141,16 @@ button[data-baseweb="tab"][aria-selected="true"] { color: var(--gold) !important
 
 # ── Session state init ─────────────────────────────────────────────────────
 @st.cache_resource(show_spinner=False)
-def get_db():
+def get_shared_db():
     return init_db()
+
+def get_db():
+    """portfolio.db locally; in demo mode, a private in-memory demo portfolio per visitor."""
+    if not DEMO_MODE:
+        return get_shared_db()
+    if "demo_db" not in st.session_state:
+        st.session_state.demo_db = init_db(":memory:")
+    return st.session_state.demo_db
 
 @st.cache_resource(show_spinner=False)
 def get_search():
@@ -370,6 +385,11 @@ st.markdown(
     "<p style='text-align:center; color:#64748B; font-size:0.85rem;'>Bitcoin & Gold — The Stoic Portfolio</p>",
     unsafe_allow_html=True,
 )
+if DEMO_MODE:
+    st.info(
+        "Demo: every visitor starts from the same four demo purchases. Trades you add are kept "
+        "only for this visit, and nobody else can see them."
+    )
 st.divider()
 
 # ── Load data ─────────────────────────────────────────────────────────────
@@ -685,5 +705,7 @@ st.markdown(
 # ── Auto-refresh ───────────────────────────────────────────────────────────
 if auto_refresh:
     time.sleep(300)
-    st.cache_data.clear()
+    # Only the live data; clearing every cache would refit the forecasts for all visitors.
+    load_prices.clear()
+    get_stoic_quote.clear()
     st.rerun()

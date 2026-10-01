@@ -48,8 +48,11 @@ QTY_TOLERANCE = 1e-9  # float slack, so selling "everything" never leaves dust o
 # Database bootstrap
 # ---------------------------------------------------------------------------
 
-def init_db(db_path: Optional[Path] = None, seed_demo: bool = True) -> sqlite3.Connection:
-    """Create tables if they don't exist and return a connection."""
+def init_db(db_path: Union[None, Path, str] = None, seed_demo: bool = True) -> sqlite3.Connection:
+    """Create tables if they don't exist and return a connection.
+
+    `db_path` defaults to DB_PATH; ":memory:" gives a private in-memory database.
+    """
     conn = sqlite3.connect(str(db_path or DB_PATH), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")

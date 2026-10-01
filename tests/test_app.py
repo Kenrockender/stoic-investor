@@ -78,3 +78,24 @@ def test_the_form_refuses_to_sell_more_than_is_held(run_app):
     assert not at.exception
     assert any("only 0.1 is held" in e.value for e in at.sidebar.error)
     assert len(data_engine.get_transactions(data_engine.init_db(seed_demo=False))) == 4
+
+
+def test_demo_mode_keeps_each_visitors_trades_private(run_app, monkeypatch, tmp_path):
+    monkeypatch.setenv("STOIC_DEMO", "1")
+    total = "📊 Total P&L (USD)"
+    first = run_app(PRICES)
+    assert any(i.value.startswith("Demo:") for i in first.info)
+    baseline = next(m.value for m in first.metric if m.label == total)
+
+    form = first.sidebar
+    form.selectbox[0].set_value("BTC")
+    form.selectbox[1].set_value("BUY")
+    form.number_input[0].set_value(0.5)
+    form.number_input[1].set_value(60_000.0)  # below the $80,000 price, so an instant gain
+    form.button[0].click().run()
+    assert not first.exception
+    assert next(m.value for m in first.metric if m.label == total) != baseline
+
+    second = run_app(PRICES)  # another visitor still sees only the demo purchases
+    assert next(m.value for m in second.metric if m.label == total) == baseline
+    assert not (tmp_path / "portfolio.db").exists()

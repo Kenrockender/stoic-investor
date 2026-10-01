@@ -44,3 +44,30 @@ def test_semantic_index_replaces_the_old_unsourced_collection(tmp_path):
     assert names == {stoic_search.COLLECTION_PREFIX + stoic_search.fingerprint(STOIC_CORPUS)}
     best = search.query("I want to sell everything because the price crashed", n_results=3)
     assert len(best) == 3 and all(r["id"] != "sen_013" for r in best)
+
+
+def test_an_old_system_sqlite_is_replaced_by_the_bundled_one(monkeypatch):
+    # Streamlit Community Cloud ships SQLite 3.34; ChromaDB needs 3.35.
+    import sqlite3
+    import sys
+    import types
+
+    monkeypatch.setattr(sqlite3, "sqlite_version_info", (3, 34, 1))
+    monkeypatch.setitem(sys.modules, "sqlite3", sqlite3)  # restored after the test
+    bundled = types.ModuleType("pysqlite3")
+    monkeypatch.setitem(sys.modules, "pysqlite3", bundled)
+    assert stoic_search.use_bundled_sqlite_if_needed() is True
+    assert sys.modules["sqlite3"] is bundled
+
+
+def test_sqlite_is_left_alone_when_new_enough_or_no_bundled_copy(monkeypatch):
+    import sqlite3
+    import sys
+
+    monkeypatch.setitem(sys.modules, "sqlite3", sqlite3)
+    monkeypatch.setattr(sqlite3, "sqlite_version_info", (3, 45, 1))
+    assert stoic_search.use_bundled_sqlite_if_needed() is False
+    monkeypatch.setattr(sqlite3, "sqlite_version_info", (3, 34, 1))
+    monkeypatch.setitem(sys.modules, "pysqlite3", None)  # not installed: import fails
+    assert stoic_search.use_bundled_sqlite_if_needed() is False
+    assert sys.modules["sqlite3"] is sqlite3

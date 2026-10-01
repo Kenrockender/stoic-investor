@@ -56,7 +56,7 @@ python scripts/download_quote_sources.py   # optional: lets the tests check ever
 pytest
 ```
 
-The 65 tests cover the profit maths (including the partial-sale and fee cases the first version got wrong), the oversell checks, missing prices, the forecast and the backtest's scoring rules, the quote list, the quote search, and a run of the whole app on fake prices.
+The 68 tests cover the profit maths (including the partial-sale and fee cases the first version got wrong), the oversell checks, missing prices, the forecast and the backtest's scoring rules, the quote list, the quote search, a run of the whole app on fake prices, and demo mode keeping each visitor's trades private.
 
 ## Re-running the backtest
 
@@ -86,9 +86,17 @@ Yahoo Finance's terms allow its data for personal use, so the price file is not 
 
 ## Deploying to Streamlit Community Cloud
 
-1. Push this folder to a GitHub repository.
-2. On [share.streamlit.io](https://share.streamlit.io), create an app that points to `app.py`.
-3. `requirements.txt` installs everything. Prophet's install can take a few minutes on the first start.
+1. On [share.streamlit.io](https://share.streamlit.io), click **Create app**, then **Yup, I have an app**, and choose this repository, branch `main` and file `app.py`.
+2. Open **Advanced settings**, choose **Python 3.11** (the version the tests run on; `numpy==1.26.4` has no wheels for Python 3.13 or newer), and paste this into **Secrets**:
+
+   ```toml
+   STOIC_DEMO = "1"
+   ```
+
+   Demo mode gives every visitor a private, in-memory copy of the four demo purchases, so nobody sees or changes anyone else's trades, and nothing is written to `portfolio.db`.
+3. Click **Deploy**. The first start takes a few minutes while Prophet and ChromaDB install.
+
+On Linux, `requirements.txt` also installs `pysqlite3-binary`. Community Cloud's SQLite is older than ChromaDB needs, and `stoic_search.py` swaps in the bundled newer one only when the system's is too old. If that ever fails, the app falls back to keyword search and says so.
 
 ## Disclaimer
 
