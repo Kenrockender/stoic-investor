@@ -99,3 +99,14 @@ def test_demo_mode_keeps_each_visitors_trades_private(run_app, monkeypatch, tmp_
     second = run_app(PRICES)  # another visitor still sees only the demo purchases
     assert next(m.value for m in second.metric if m.label == total) == baseline
     assert not (tmp_path / "portfolio.db").exists()
+
+
+def test_dollar_amounts_are_never_read_as_maths(run_app):
+    # Streamlit renders text between two unescaped $ signs as LaTeX, which garbled
+    # "Realised: +$0.00 · Unrealised: +$4,029.97" into italic maths on the live demo.
+    import re
+
+    at = run_app(PRICES)
+    texts = [e.value for e in [*at.markdown, *at.caption, *at.success, *at.info, *at.warning]]
+    assert texts
+    assert [t for t in texts if len(re.findall(r"(?<!\\)\$", t)) >= 2] == []

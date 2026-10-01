@@ -136,3 +136,11 @@ def test_demo_portfolio(tmp_path):
     assert btc["qty"] == pytest.approx(0.10)
     assert btc["avg_cost"] == pytest.approx(43_550)
     conn.close()
+
+
+def test_demo_trades_are_dated_in_the_past(tmp_path):
+    # Seeded with today's date, a fresh demo's profit chart was a single point.
+    conn = de.init_db(tmp_path / "demo.db")
+    dates = pd.to_datetime(de.get_transactions(conn)["ts"])
+    assert len(dates) == 4 and (dates < "2025-01-01").all()
+    conn.close()
