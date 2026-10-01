@@ -1,0 +1,14 @@
+# Runtime artefacts the app creates on first run
+portfolio.db
+portfolio.db-*
+.chromadb/
+lightning_logs/
+.lr_find_*.ckpt
+.quote_sources/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.streamlit/secrets.toml
