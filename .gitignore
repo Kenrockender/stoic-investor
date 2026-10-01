@@ -6,6 +6,10 @@ lightning_logs/
 .lr_find_*.ckpt
 .quote_sources/
 
+# Yahoo Finance prices: their terms allow personal use only, so backtest.py
+# downloads them locally instead of shipping them in the repo
+data/prices.csv
+
 # Python
 __pycache__/
 *.pyc

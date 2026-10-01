@@ -1,132 +1,95 @@
 # ⚖️ Stoic Investor
-> *"You have power over your mind, not outside events. Realize this, and you will find strength."*
-> — Marcus Aurelius
+> *"If thou art pained by any external thing, it is not this thing that disturbs thee, but thy own judgment about it."*
+> — Marcus Aurelius, Meditations 8.47 (tr. George Long)
 
-A **Compound AI System** for tracking your Bitcoin and Gold portfolio with time-series forecasting and a Stoic philosophy RAG engine that keeps you calm when the market bleeds.
+A Streamlit dashboard for a Bitcoin and gold portfolio, in US dollars and rupiah. It tracks what you bought and sold, shows a price forecast together with how often that forecast has been wrong, and picks a Stoic quote to match the day's market mood.
 
----
+## What it found: the forecast loses to "no change"
 
-## Architecture
+The app forecasts with Prophet. `backtest.py` replays that exact forecast every 14 days from September 2015 to June 2026, 282 times per asset, each time using only the year of prices before that day. It then compares each forecast with what the price actually did, and with the simplest possible guess: that the price stays where it is.
 
-```
-stoic_investor/
-├── app.py           ← Streamlit dashboard (UI layer)
-├── data_engine.py   ← Live prices (yfinance) + SQLite transaction store
-├── forecaster.py    ← Prophet / NeuralProphet time-series forecasting
-├── stoic_rag.py     ← ChromaDB vector store with 40 curated Stoic quotes
-├── requirements.txt
-└── README.md
+| | Horizon | Prophet's average miss | "No change" average miss | Prophet closer | Direction right | Price inside the 80% band |
+|---|---|---|---|---|---|---|
+| Bitcoin | 7 days | 9.7% | 6.1% | 36% | 54% | 37% |
+| Bitcoin | 30 days | 24.2% | 15.0% | 37% | 50% | 17% |
+| Bitcoin | 90 days | 47.0% | 28.4% | 35% | 42% | 6% |
+| Gold | 7 days | 2.7% | 1.6% | 31% | 50% | 28% |
+| Gold | 30 days | 7.1% | 3.3% | 30% | 51% | 12% |
+| Gold | 90 days | 15.7% | 6.3% | 38% | 55% | 9% |
 
-Runtime artefacts (auto-created):
-├── portfolio.db     ← SQLite — your transaction history
-└── .chromadb/       ← ChromaDB persistence directory
-```
+At every horizon and for both assets, assuming no change beat the forecast. The forecast called the direction about as often as a coin toss, and its "80%" band contained the real price far less often than 80% of the time. So the app shows each forecast with its track record and a "no change" line, and calls it a scenario rather than a prediction. Full results for every horizon from 1 to 90 days are in `results/backtest.json`.
 
-### The Four Pillars
+## What it does
 
-| Layer | Tech | Purpose |
-|---|---|---|
-| **Data Engine** | `yfinance` + `sqlite3` | Live BTC/Gold/IDR prices, transaction history, P&L |
-| **Forecaster** | `Prophet` / `NeuralProphet` | 7–90 day price forecasts with confidence bands |
-| **Stoic RAG** | `ChromaDB` + sentence-transformers | Semantic retrieval of philosophy on market events |
-| **UI** | `Streamlit` + `Plotly` | Dark-mode dashboard, candlestick charts, portfolio view |
+- **Portfolio:** live BTC, gold and USD/IDR prices from Yahoo Finance. Profit uses the average-cost method: a sale takes units out at their average cost, including buy fees. Its price minus that cost and its fee is realised profit, and what you still hold, at today's price, minus what it cost is unrealised profit.
+- **No guessed numbers:** if a price or the exchange rate fails to load, the app says so and shows "—". It never falls back to a made-up rate.
+- **Transactions:** buys and sells with a trade date and fee. A sale of more than you held on that date is refused, including a back-dated sale that would make a later one impossible.
+- **Forecast:** Prophet with an 80% band, for 7 to 90 days ahead, next to its backtested track record.
+- **Stoic quotes:** semantic search (ChromaDB with all-MiniLM-L6-v2 sentence embeddings) over 32 quotes. Nothing is generated: every quote is word for word from a public-domain translation and shows its citation, for example "Meditations 8.47". [docs/quote-audit.md](docs/quote-audit.md) explains how the original 40 quotes were checked. Several were modern paraphrases, duplicates or misattributions.
 
----
+## Quick start
 
-## Quick Start
-
-### 1 — Clone & install
+With conda, for example an environment called `finance_project`:
 
 ```bash
-git clone https://github.com/yourname/stoic-investor
-cd stoic-investor
-
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
+conda activate finance_project      # activation tells Prophet where its Stan engine is
 pip install -r requirements.txt
-```
-
-> **Note on Prophet:** If `pip install prophet` fails, try:
-> ```bash
-> conda install -c conda-forge prophet
-> ```
-> The app gracefully falls back to a built-in naive trend model if neither
-> Prophet nor NeuralProphet is available.
-
-### 2 — Run
-
-```bash
 streamlit run app.py
 ```
 
-Open http://localhost:8501 — that's it. No API keys required.
+With a plain virtual environment:
 
----
+```bash
+python -m venv .venv
+.venv\Scripts\activate              # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
+```
 
-## Features
+The app opens at http://localhost:8501 and needs no API keys. On the first run it creates `portfolio.db` with four demo purchases (125 g of gold and 0.10 BTC). Add your own trades from the sidebar, or delete `portfolio.db` to start empty.
 
-### 📊 Portfolio Dashboard
-- Real-time BTC, Gold (per gram), and USD/IDR rates via Yahoo Finance
-- Cost-basis tracking with average entry price per asset
-- Unrealised P&L in both USD and IDR
-- Portfolio allocation donut chart
+## Tests
 
-### ₿ Bitcoin & 🥇 Gold Tabs
-- Interactive candlestick charts (1y default, configurable)
-- Prophet forecast overlay with 80% confidence band
-- Daily P&L area chart
+```bash
+pip install -r requirements-dev.txt
+python scripts/download_quote_sources.py   # optional: lets the tests check every quote word for word
+pytest
+```
 
-### 🏛 Stoic Oracle
-- Automatically detects market mood (dip / euphoria / neutral) from 24h price change
-- Retrieves the most semantically relevant Stoic quote using ChromaDB cosine similarity
-- Works even offline (keyword fallback)
+The 65 tests cover the profit maths (including the partial-sale and fee cases the first version got wrong), the oversell checks, missing prices, the forecast and the backtest's scoring rules, the quote list, the quote search, and a run of the whole app on fake prices.
 
-### 📋 Transactions
-- Add BUY/SELL from the sidebar
-- Mark-to-market P&L per transaction
-- Pre-seeded with demo holdings (125g gold + 0.10 BTC via DCA)
+## Re-running the backtest
 
-### 🏛 Stoic Library
-- Full-text search across 40 curated quotes (Marcus Aurelius, Seneca, Epictetus)
-- Semantic query: describe any situation, get the most relevant wisdom
-- Pre-set scenarios: crash, FOMO, panic selling, DCA discipline
+```bash
+python backtest.py      # downloads daily prices into data/prices.csv, then about 2 minutes on 8 cores
+```
 
----
+Yahoo Finance's terms allow its data for personal use, so the price file is not in this repository. Only the derived error statistics are.
 
-## Customising Your Holdings
+## Files
 
-The database is seeded with demo transactions on first run:
-- 125g of Gold at various prices
-- 0.10 BTC via DCA
+| File | Purpose |
+|---|---|
+| `app.py` | Streamlit dashboard |
+| `data_engine.py` | Yahoo Finance prices, the SQLite transaction store, average-cost profit |
+| `forecaster.py` | The Prophet forecast and its track record from the backtest |
+| `backtest.py` | Scores the forecast against "no change" and writes `results/` |
+| `stoic_search.py` | Semantic search over `stoic_quotes.json` |
+| `stoic_quotes.json` | 32 sourced quotes with citations |
+| `docs/quote-audit.md` | What happened to each original quote |
+| `tests/` | pytest suite |
 
-To replace with your real data, either:
-1. Use the **sidebar form** to add real transactions, or
-2. Delete `portfolio.db` and re-seed via the form
+## Data notes
 
----
+- Gold is priced from COMEX gold futures (GC=F) per troy ounce, converted to grams. Indonesian retail gold (Antam, Pegadaian) costs more.
+- Prices come from Yahoo Finance through `yfinance`, which is unofficial and occasionally fails. When it does, the app shows "—" instead of a number.
 
-## Deploying to Streamlit Cloud
+## Deploying to Streamlit Community Cloud
 
-1. Push this folder to a GitHub repo
-2. Go to [share.streamlit.io](https://share.streamlit.io) → New app
-3. Point to `app.py`
-4. Add `requirements.txt` (already included)
-
-> Prophet may take ~3 min to install on first cold start. The app will use
-> the naive trend model in the meantime.
-
----
-
-## Roadmap
-
-- [ ] Oanda API integration for real-time gold spot price
-- [ ] Push alerts (Telegram / email) on >5% daily moves
-- [ ] DCA calculator with optimal entry simulator
-- [ ] Multi-currency IDR/SGD/USD toggle
-
----
+1. Push this folder to a GitHub repository.
+2. On [share.streamlit.io](https://share.streamlit.io), create an app that points to `app.py`.
+3. `requirements.txt` installs everything. Prophet's install can take a few minutes on the first start.
 
 ## Disclaimer
 
-This is a personal portfolio tracker. Nothing here constitutes financial advice.
-The Stoics would agree: the only thing you truly own is your response to events.
+This is a personal portfolio tracker. Nothing here is financial advice.

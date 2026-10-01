@@ -1,0 +1,1859 @@
+{
+  "generated_utc": "2026-10-01 08:14",
+  "data": {
+    "source": "Yahoo Finance daily closes",
+    "tickers": {
+      "BTC": "BTC-USD",
+      "GOLD": "GC=F"
+    },
+    "first_date": {
+      "BTC": "2014-09-17",
+      "GOLD": "2014-09-02"
+    },
+    "last_date": {
+      "BTC": "2026-09-29",
+      "GOLD": "2026-09-29"
+    },
+    "prices_sha256": "2b290a148b7f1c117d963bc971d1168cb238ac847eeff684f8efc4770ded973d"
+  },
+  "method": {
+    "model": "Prophet 1.3.0 with the app's settings",
+    "settings": {
+      "daily_seasonality": false,
+      "weekly_seasonality": true,
+      "yearly_seasonality": true,
+      "changepoint_prior_scale": 0.15,
+      "interval_width": 0.8
+    },
+    "baseline": "no change: the close on the forecast day",
+    "history_period": "1y",
+    "history_days": 365,
+    "step_days": 14,
+    "max_horizon_days": 90,
+    "scored_on": "the last close on or before forecast day + horizon",
+    "metrics": {
+      "mape": "mean absolute error, % of the actual price",
+      "win_rate": "% of forecasts closer to the actual price than 'no change'",
+      "direction_hit_rate": "% of forecasts that got the direction of the move right",
+      "band_coverage": "% of actual prices inside the forecast's 80% band"
+    }
+  },
+  "assets": {
+    "BTC": {
+      "ticker": "BTC-USD",
+      "n_forecasts": 282,
+      "first_origin": "2015-09-17",
+      "last_origin": "2026-06-25",
+      "by_horizon": {
+        "1": {
+          "n": 282,
+          "mape_model": 5.64,
+          "mape_naive": 2.39,
+          "median_ape_model": 4.06,
+          "median_ape_naive": 1.44,
+          "win_rate": 23.4,
+          "direction_hit_rate": 47.5,
+          "band_coverage": 57.4
+        },
+        "2": {
+          "n": 282,
+          "mape_model": 6.51,
+          "mape_naive": 3.16,
+          "median_ape_model": 4.15,
+          "median_ape_naive": 1.93,
+          "win_rate": 25.5,
+          "direction_hit_rate": 46.5,
+          "band_coverage": 53.5
+        },
+        "3": {
+          "n": 282,
+          "mape_model": 7.23,
+          "mape_naive": 3.62,
+          "median_ape_model": 4.89,
+          "median_ape_naive": 2.47,
+          "win_rate": 26.6,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 47.5
+        },
+        "4": {
+          "n": 282,
+          "mape_model": 7.97,
+          "mape_naive": 4.62,
+          "median_ape_model": 5.67,
+          "median_ape_naive": 3.15,
+          "win_rate": 31.6,
+          "direction_hit_rate": 54.6,
+          "band_coverage": 42.9
+        },
+        "5": {
+          "n": 282,
+          "mape_model": 8.45,
+          "mape_naive": 5.11,
+          "median_ape_model": 6.36,
+          "median_ape_naive": 3.69,
+          "win_rate": 33.3,
+          "direction_hit_rate": 55.0,
+          "band_coverage": 41.1
+        },
+        "6": {
+          "n": 282,
+          "mape_model": 9.37,
+          "mape_naive": 5.52,
+          "median_ape_model": 6.5,
+          "median_ape_naive": 3.75,
+          "win_rate": 32.6,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 37.6
+        },
+        "7": {
+          "n": 282,
+          "mape_model": 9.72,
+          "mape_naive": 6.08,
+          "median_ape_model": 6.98,
+          "median_ape_naive": 4.47,
+          "win_rate": 36.2,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 36.9
+        },
+        "8": {
+          "n": 282,
+          "mape_model": 10.76,
+          "mape_naive": 7.08,
+          "median_ape_model": 7.77,
+          "median_ape_naive": 5.02,
+          "win_rate": 39.0,
+          "direction_hit_rate": 54.3,
+          "band_coverage": 33.7
+        },
+        "9": {
+          "n": 282,
+          "mape_model": 11.43,
+          "mape_naive": 7.46,
+          "median_ape_model": 8.02,
+          "median_ape_naive": 5.68,
+          "win_rate": 38.3,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 32.6
+        },
+        "10": {
+          "n": 282,
+          "mape_model": 11.88,
+          "mape_naive": 7.4,
+          "median_ape_model": 8.97,
+          "median_ape_naive": 5.38,
+          "win_rate": 37.9,
+          "direction_hit_rate": 55.3,
+          "band_coverage": 29.4
+        },
+        "11": {
+          "n": 282,
+          "mape_model": 12.93,
+          "mape_naive": 7.89,
+          "median_ape_model": 9.18,
+          "median_ape_naive": 6.0,
+          "win_rate": 36.2,
+          "direction_hit_rate": 52.8,
+          "band_coverage": 31.6
+        },
+        "12": {
+          "n": 282,
+          "mape_model": 13.64,
+          "mape_naive": 8.32,
+          "median_ape_model": 9.94,
+          "median_ape_naive": 5.98,
+          "win_rate": 35.5,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 30.1
+        },
+        "13": {
+          "n": 282,
+          "mape_model": 14.71,
+          "mape_naive": 8.91,
+          "median_ape_model": 10.67,
+          "median_ape_naive": 6.2,
+          "win_rate": 34.4,
+          "direction_hit_rate": 53.2,
+          "band_coverage": 27.3
+        },
+        "14": {
+          "n": 282,
+          "mape_model": 15.94,
+          "mape_naive": 9.8,
+          "median_ape_model": 11.5,
+          "median_ape_naive": 7.38,
+          "win_rate": 36.2,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 24.1
+        },
+        "15": {
+          "n": 282,
+          "mape_model": 16.65,
+          "mape_naive": 10.08,
+          "median_ape_model": 11.47,
+          "median_ape_naive": 7.29,
+          "win_rate": 35.5,
+          "direction_hit_rate": 55.0,
+          "band_coverage": 24.1
+        },
+        "16": {
+          "n": 282,
+          "mape_model": 17.41,
+          "mape_naive": 10.47,
+          "median_ape_model": 12.01,
+          "median_ape_naive": 7.26,
+          "win_rate": 36.2,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 24.1
+        },
+        "17": {
+          "n": 282,
+          "mape_model": 17.93,
+          "mape_naive": 10.65,
+          "median_ape_model": 12.64,
+          "median_ape_naive": 7.75,
+          "win_rate": 36.5,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 22.7
+        },
+        "18": {
+          "n": 282,
+          "mape_model": 18.8,
+          "mape_naive": 11.21,
+          "median_ape_model": 13.47,
+          "median_ape_naive": 7.95,
+          "win_rate": 35.5,
+          "direction_hit_rate": 49.3,
+          "band_coverage": 21.3
+        },
+        "19": {
+          "n": 282,
+          "mape_model": 19.07,
+          "mape_naive": 11.39,
+          "median_ape_model": 13.74,
+          "median_ape_naive": 8.56,
+          "win_rate": 34.0,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 25.2
+        },
+        "20": {
+          "n": 282,
+          "mape_model": 19.66,
+          "mape_naive": 11.9,
+          "median_ape_model": 14.34,
+          "median_ape_naive": 8.93,
+          "win_rate": 35.8,
+          "direction_hit_rate": 50.4,
+          "band_coverage": 21.3
+        },
+        "21": {
+          "n": 282,
+          "mape_model": 20.41,
+          "mape_naive": 12.1,
+          "median_ape_model": 14.18,
+          "median_ape_naive": 8.64,
+          "win_rate": 34.4,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 16.7
+        },
+        "22": {
+          "n": 282,
+          "mape_model": 21.21,
+          "mape_naive": 12.73,
+          "median_ape_model": 15.07,
+          "median_ape_naive": 9.4,
+          "win_rate": 33.7,
+          "direction_hit_rate": 48.9,
+          "band_coverage": 14.9
+        },
+        "23": {
+          "n": 282,
+          "mape_model": 21.56,
+          "mape_naive": 13.01,
+          "median_ape_model": 15.21,
+          "median_ape_naive": 10.4,
+          "win_rate": 34.0,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 13.5
+        },
+        "24": {
+          "n": 282,
+          "mape_model": 21.69,
+          "mape_naive": 12.94,
+          "median_ape_model": 14.69,
+          "median_ape_naive": 10.07,
+          "win_rate": 33.7,
+          "direction_hit_rate": 49.3,
+          "band_coverage": 18.8
+        },
+        "25": {
+          "n": 282,
+          "mape_model": 22.06,
+          "mape_naive": 13.3,
+          "median_ape_model": 14.97,
+          "median_ape_naive": 10.49,
+          "win_rate": 36.2,
+          "direction_hit_rate": 50.4,
+          "band_coverage": 16.3
+        },
+        "26": {
+          "n": 282,
+          "mape_model": 22.37,
+          "mape_naive": 13.66,
+          "median_ape_model": 16.05,
+          "median_ape_naive": 10.75,
+          "win_rate": 35.5,
+          "direction_hit_rate": 47.5,
+          "band_coverage": 14.9
+        },
+        "27": {
+          "n": 282,
+          "mape_model": 22.81,
+          "mape_naive": 13.98,
+          "median_ape_model": 15.71,
+          "median_ape_naive": 10.76,
+          "win_rate": 36.2,
+          "direction_hit_rate": 49.3,
+          "band_coverage": 14.5
+        },
+        "28": {
+          "n": 282,
+          "mape_model": 23.58,
+          "mape_naive": 14.68,
+          "median_ape_model": 15.82,
+          "median_ape_naive": 10.99,
+          "win_rate": 36.2,
+          "direction_hit_rate": 48.9,
+          "band_coverage": 15.2
+        },
+        "29": {
+          "n": 282,
+          "mape_model": 23.89,
+          "mape_naive": 14.77,
+          "median_ape_model": 15.75,
+          "median_ape_naive": 12.02,
+          "win_rate": 37.6,
+          "direction_hit_rate": 50.4,
+          "band_coverage": 17.0
+        },
+        "30": {
+          "n": 282,
+          "mape_model": 24.17,
+          "mape_naive": 14.96,
+          "median_ape_model": 15.72,
+          "median_ape_naive": 11.76,
+          "win_rate": 37.2,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 17.0
+        },
+        "31": {
+          "n": 282,
+          "mape_model": 24.63,
+          "mape_naive": 15.14,
+          "median_ape_model": 16.11,
+          "median_ape_naive": 11.93,
+          "win_rate": 37.2,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 15.6
+        },
+        "32": {
+          "n": 282,
+          "mape_model": 25.33,
+          "mape_naive": 15.89,
+          "median_ape_model": 16.74,
+          "median_ape_naive": 12.45,
+          "win_rate": 37.9,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 13.1
+        },
+        "33": {
+          "n": 282,
+          "mape_model": 25.96,
+          "mape_naive": 16.31,
+          "median_ape_model": 17.23,
+          "median_ape_naive": 13.91,
+          "win_rate": 37.6,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 14.2
+        },
+        "34": {
+          "n": 282,
+          "mape_model": 26.37,
+          "mape_naive": 16.7,
+          "median_ape_model": 17.44,
+          "median_ape_naive": 13.17,
+          "win_rate": 38.3,
+          "direction_hit_rate": 50.4,
+          "band_coverage": 14.2
+        },
+        "35": {
+          "n": 282,
+          "mape_model": 26.69,
+          "mape_naive": 16.68,
+          "median_ape_model": 17.88,
+          "median_ape_naive": 14.11,
+          "win_rate": 37.2,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 12.8
+        },
+        "36": {
+          "n": 282,
+          "mape_model": 27.37,
+          "mape_naive": 17.13,
+          "median_ape_model": 17.84,
+          "median_ape_naive": 13.86,
+          "win_rate": 36.9,
+          "direction_hit_rate": 50.4,
+          "band_coverage": 14.5
+        },
+        "37": {
+          "n": 282,
+          "mape_model": 27.63,
+          "mape_naive": 17.3,
+          "median_ape_model": 18.04,
+          "median_ape_naive": 14.02,
+          "win_rate": 37.9,
+          "direction_hit_rate": 48.9,
+          "band_coverage": 14.2
+        },
+        "38": {
+          "n": 282,
+          "mape_model": 27.75,
+          "mape_naive": 17.34,
+          "median_ape_model": 18.35,
+          "median_ape_naive": 14.57,
+          "win_rate": 37.9,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 15.2
+        },
+        "39": {
+          "n": 282,
+          "mape_model": 28.12,
+          "mape_naive": 17.6,
+          "median_ape_model": 18.82,
+          "median_ape_naive": 14.41,
+          "win_rate": 39.0,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 13.1
+        },
+        "40": {
+          "n": 282,
+          "mape_model": 28.5,
+          "mape_naive": 17.79,
+          "median_ape_model": 19.85,
+          "median_ape_naive": 14.59,
+          "win_rate": 37.2,
+          "direction_hit_rate": 49.3,
+          "band_coverage": 14.9
+        },
+        "41": {
+          "n": 282,
+          "mape_model": 28.94,
+          "mape_naive": 18.16,
+          "median_ape_model": 20.53,
+          "median_ape_naive": 14.22,
+          "win_rate": 39.7,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 14.5
+        },
+        "42": {
+          "n": 282,
+          "mape_model": 29.53,
+          "mape_naive": 18.6,
+          "median_ape_model": 19.59,
+          "median_ape_naive": 14.4,
+          "win_rate": 39.7,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 12.4
+        },
+        "43": {
+          "n": 282,
+          "mape_model": 29.98,
+          "mape_naive": 18.94,
+          "median_ape_model": 20.23,
+          "median_ape_naive": 14.26,
+          "win_rate": 40.4,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 13.8
+        },
+        "44": {
+          "n": 282,
+          "mape_model": 30.14,
+          "mape_naive": 19.02,
+          "median_ape_model": 20.16,
+          "median_ape_naive": 14.81,
+          "win_rate": 41.1,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 13.1
+        },
+        "45": {
+          "n": 282,
+          "mape_model": 30.64,
+          "mape_naive": 19.17,
+          "median_ape_model": 19.75,
+          "median_ape_naive": 14.19,
+          "win_rate": 40.1,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 14.5
+        },
+        "46": {
+          "n": 282,
+          "mape_model": 31.4,
+          "mape_naive": 19.57,
+          "median_ape_model": 20.22,
+          "median_ape_naive": 15.72,
+          "win_rate": 37.9,
+          "direction_hit_rate": 52.8,
+          "band_coverage": 13.1
+        },
+        "47": {
+          "n": 282,
+          "mape_model": 31.86,
+          "mape_naive": 19.76,
+          "median_ape_model": 21.55,
+          "median_ape_naive": 16.05,
+          "win_rate": 39.4,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 12.1
+        },
+        "48": {
+          "n": 282,
+          "mape_model": 32.59,
+          "mape_naive": 20.3,
+          "median_ape_model": 22.19,
+          "median_ape_naive": 16.87,
+          "win_rate": 38.3,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 12.4
+        },
+        "49": {
+          "n": 282,
+          "mape_model": 33.06,
+          "mape_naive": 20.23,
+          "median_ape_model": 22.05,
+          "median_ape_naive": 17.51,
+          "win_rate": 38.7,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 11.3
+        },
+        "50": {
+          "n": 282,
+          "mape_model": 33.57,
+          "mape_naive": 20.53,
+          "median_ape_model": 22.39,
+          "median_ape_naive": 17.32,
+          "win_rate": 40.8,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 11.3
+        },
+        "51": {
+          "n": 282,
+          "mape_model": 33.98,
+          "mape_naive": 20.74,
+          "median_ape_model": 23.4,
+          "median_ape_naive": 16.89,
+          "win_rate": 38.7,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 11.3
+        },
+        "52": {
+          "n": 282,
+          "mape_model": 34.11,
+          "mape_naive": 20.76,
+          "median_ape_model": 23.11,
+          "median_ape_naive": 17.41,
+          "win_rate": 41.1,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 12.1
+        },
+        "53": {
+          "n": 282,
+          "mape_model": 34.15,
+          "mape_naive": 20.94,
+          "median_ape_model": 22.63,
+          "median_ape_naive": 17.16,
+          "win_rate": 40.1,
+          "direction_hit_rate": 52.8,
+          "band_coverage": 11.3
+        },
+        "54": {
+          "n": 282,
+          "mape_model": 34.42,
+          "mape_naive": 20.97,
+          "median_ape_model": 22.35,
+          "median_ape_naive": 17.52,
+          "win_rate": 37.6,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 9.9
+        },
+        "55": {
+          "n": 282,
+          "mape_model": 34.97,
+          "mape_naive": 21.21,
+          "median_ape_model": 23.52,
+          "median_ape_naive": 17.53,
+          "win_rate": 36.9,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 7.8
+        },
+        "56": {
+          "n": 282,
+          "mape_model": 35.4,
+          "mape_naive": 21.64,
+          "median_ape_model": 24.08,
+          "median_ape_naive": 18.11,
+          "win_rate": 37.2,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 9.2
+        },
+        "57": {
+          "n": 282,
+          "mape_model": 35.98,
+          "mape_naive": 21.99,
+          "median_ape_model": 23.99,
+          "median_ape_naive": 18.25,
+          "win_rate": 36.5,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 8.9
+        },
+        "58": {
+          "n": 282,
+          "mape_model": 36.31,
+          "mape_naive": 22.23,
+          "median_ape_model": 24.81,
+          "median_ape_naive": 18.34,
+          "win_rate": 36.9,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 8.5
+        },
+        "59": {
+          "n": 282,
+          "mape_model": 36.65,
+          "mape_naive": 22.37,
+          "median_ape_model": 24.97,
+          "median_ape_naive": 19.14,
+          "win_rate": 36.5,
+          "direction_hit_rate": 48.6,
+          "band_coverage": 7.8
+        },
+        "60": {
+          "n": 282,
+          "mape_model": 37.5,
+          "mape_naive": 22.95,
+          "median_ape_model": 25.08,
+          "median_ape_naive": 20.27,
+          "win_rate": 36.2,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 7.4
+        },
+        "61": {
+          "n": 282,
+          "mape_model": 37.68,
+          "mape_naive": 22.88,
+          "median_ape_model": 25.58,
+          "median_ape_naive": 20.62,
+          "win_rate": 36.9,
+          "direction_hit_rate": 47.9,
+          "band_coverage": 9.6
+        },
+        "62": {
+          "n": 282,
+          "mape_model": 38.16,
+          "mape_naive": 23.22,
+          "median_ape_model": 25.85,
+          "median_ape_naive": 19.9,
+          "win_rate": 36.2,
+          "direction_hit_rate": 47.9,
+          "band_coverage": 7.1
+        },
+        "63": {
+          "n": 282,
+          "mape_model": 38.6,
+          "mape_naive": 23.27,
+          "median_ape_model": 26.03,
+          "median_ape_naive": 19.52,
+          "win_rate": 35.8,
+          "direction_hit_rate": 46.8,
+          "band_coverage": 7.4
+        },
+        "64": {
+          "n": 282,
+          "mape_model": 39.12,
+          "mape_naive": 23.48,
+          "median_ape_model": 26.16,
+          "median_ape_naive": 19.55,
+          "win_rate": 34.4,
+          "direction_hit_rate": 46.1,
+          "band_coverage": 7.4
+        },
+        "65": {
+          "n": 282,
+          "mape_model": 39.38,
+          "mape_naive": 23.66,
+          "median_ape_model": 26.69,
+          "median_ape_naive": 19.51,
+          "win_rate": 34.8,
+          "direction_hit_rate": 46.1,
+          "band_coverage": 7.8
+        },
+        "66": {
+          "n": 282,
+          "mape_model": 39.6,
+          "mape_naive": 23.66,
+          "median_ape_model": 26.55,
+          "median_ape_naive": 19.53,
+          "win_rate": 34.0,
+          "direction_hit_rate": 45.7,
+          "band_coverage": 7.8
+        },
+        "67": {
+          "n": 282,
+          "mape_model": 39.6,
+          "mape_naive": 23.92,
+          "median_ape_model": 26.88,
+          "median_ape_naive": 19.95,
+          "win_rate": 34.8,
+          "direction_hit_rate": 47.2,
+          "band_coverage": 7.4
+        },
+        "68": {
+          "n": 282,
+          "mape_model": 39.49,
+          "mape_naive": 23.83,
+          "median_ape_model": 28.15,
+          "median_ape_naive": 20.52,
+          "win_rate": 35.1,
+          "direction_hit_rate": 46.5,
+          "band_coverage": 7.8
+        },
+        "69": {
+          "n": 282,
+          "mape_model": 39.9,
+          "mape_naive": 24.1,
+          "median_ape_model": 28.02,
+          "median_ape_naive": 20.96,
+          "win_rate": 33.3,
+          "direction_hit_rate": 45.0,
+          "band_coverage": 7.8
+        },
+        "70": {
+          "n": 282,
+          "mape_model": 40.08,
+          "mape_naive": 24.39,
+          "median_ape_model": 28.47,
+          "median_ape_naive": 20.57,
+          "win_rate": 34.0,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 8.9
+        },
+        "71": {
+          "n": 282,
+          "mape_model": 40.62,
+          "mape_naive": 24.69,
+          "median_ape_model": 29.33,
+          "median_ape_naive": 20.5,
+          "win_rate": 35.5,
+          "direction_hit_rate": 45.7,
+          "band_coverage": 9.2
+        },
+        "72": {
+          "n": 282,
+          "mape_model": 40.96,
+          "mape_naive": 24.94,
+          "median_ape_model": 29.13,
+          "median_ape_naive": 21.66,
+          "win_rate": 36.2,
+          "direction_hit_rate": 45.7,
+          "band_coverage": 7.4
+        },
+        "73": {
+          "n": 282,
+          "mape_model": 41.24,
+          "mape_naive": 24.97,
+          "median_ape_model": 29.72,
+          "median_ape_naive": 21.41,
+          "win_rate": 36.5,
+          "direction_hit_rate": 44.7,
+          "band_coverage": 9.2
+        },
+        "74": {
+          "n": 282,
+          "mape_model": 41.67,
+          "mape_naive": 25.54,
+          "median_ape_model": 29.84,
+          "median_ape_naive": 22.25,
+          "win_rate": 37.2,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 8.2
+        },
+        "75": {
+          "n": 282,
+          "mape_model": 41.95,
+          "mape_naive": 25.6,
+          "median_ape_model": 30.78,
+          "median_ape_naive": 21.86,
+          "win_rate": 36.9,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 6.7
+        },
+        "76": {
+          "n": 282,
+          "mape_model": 42.37,
+          "mape_naive": 25.88,
+          "median_ape_model": 31.53,
+          "median_ape_naive": 22.49,
+          "win_rate": 35.5,
+          "direction_hit_rate": 43.3,
+          "band_coverage": 7.1
+        },
+        "77": {
+          "n": 282,
+          "mape_model": 42.91,
+          "mape_naive": 25.95,
+          "median_ape_model": 32.04,
+          "median_ape_naive": 22.35,
+          "win_rate": 35.8,
+          "direction_hit_rate": 44.7,
+          "band_coverage": 7.4
+        },
+        "78": {
+          "n": 282,
+          "mape_model": 43.37,
+          "mape_naive": 26.32,
+          "median_ape_model": 32.85,
+          "median_ape_naive": 22.28,
+          "win_rate": 35.5,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 7.1
+        },
+        "79": {
+          "n": 282,
+          "mape_model": 43.55,
+          "mape_naive": 26.45,
+          "median_ape_model": 33.32,
+          "median_ape_naive": 22.41,
+          "win_rate": 35.1,
+          "direction_hit_rate": 43.3,
+          "band_coverage": 7.1
+        },
+        "80": {
+          "n": 282,
+          "mape_model": 43.54,
+          "mape_naive": 26.34,
+          "median_ape_model": 33.59,
+          "median_ape_naive": 22.28,
+          "win_rate": 34.0,
+          "direction_hit_rate": 42.6,
+          "band_coverage": 9.6
+        },
+        "81": {
+          "n": 282,
+          "mape_model": 43.57,
+          "mape_naive": 26.6,
+          "median_ape_model": 33.63,
+          "median_ape_naive": 21.71,
+          "win_rate": 35.1,
+          "direction_hit_rate": 43.6,
+          "band_coverage": 7.1
+        },
+        "82": {
+          "n": 282,
+          "mape_model": 43.45,
+          "mape_naive": 26.48,
+          "median_ape_model": 34.27,
+          "median_ape_naive": 21.91,
+          "win_rate": 35.1,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 8.9
+        },
+        "83": {
+          "n": 282,
+          "mape_model": 44.01,
+          "mape_naive": 26.76,
+          "median_ape_model": 34.65,
+          "median_ape_naive": 21.6,
+          "win_rate": 35.5,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 7.8
+        },
+        "84": {
+          "n": 282,
+          "mape_model": 44.42,
+          "mape_naive": 27.01,
+          "median_ape_model": 33.97,
+          "median_ape_naive": 21.97,
+          "win_rate": 34.8,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 6.7
+        },
+        "85": {
+          "n": 282,
+          "mape_model": 44.99,
+          "mape_naive": 27.3,
+          "median_ape_model": 34.27,
+          "median_ape_naive": 22.83,
+          "win_rate": 35.5,
+          "direction_hit_rate": 45.0,
+          "band_coverage": 6.4
+        },
+        "86": {
+          "n": 282,
+          "mape_model": 45.37,
+          "mape_naive": 27.66,
+          "median_ape_model": 35.03,
+          "median_ape_naive": 22.67,
+          "win_rate": 35.5,
+          "direction_hit_rate": 44.7,
+          "band_coverage": 7.4
+        },
+        "87": {
+          "n": 282,
+          "mape_model": 45.53,
+          "mape_naive": 27.74,
+          "median_ape_model": 35.1,
+          "median_ape_naive": 23.32,
+          "win_rate": 35.5,
+          "direction_hit_rate": 44.3,
+          "band_coverage": 7.4
+        },
+        "88": {
+          "n": 282,
+          "mape_model": 46.21,
+          "mape_naive": 28.11,
+          "median_ape_model": 35.55,
+          "median_ape_naive": 22.72,
+          "win_rate": 34.4,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 7.8
+        },
+        "89": {
+          "n": 282,
+          "mape_model": 46.41,
+          "mape_naive": 28.2,
+          "median_ape_model": 35.36,
+          "median_ape_naive": 22.87,
+          "win_rate": 35.1,
+          "direction_hit_rate": 44.0,
+          "band_coverage": 7.4
+        },
+        "90": {
+          "n": 282,
+          "mape_model": 46.99,
+          "mape_naive": 28.44,
+          "median_ape_model": 36.63,
+          "median_ape_naive": 22.88,
+          "win_rate": 34.8,
+          "direction_hit_rate": 41.8,
+          "band_coverage": 6.0
+        }
+      }
+    },
+    "GOLD": {
+      "ticker": "GC=F",
+      "n_forecasts": 282,
+      "first_origin": "2015-09-17",
+      "last_origin": "2026-06-25",
+      "by_horizon": {
+        "1": {
+          "n": 264,
+          "mape_model": 1.26,
+          "mape_naive": 0.78,
+          "median_ape_model": 1.0,
+          "median_ape_naive": 0.61,
+          "win_rate": 31.8,
+          "direction_hit_rate": 54.2,
+          "band_coverage": 56.4
+        },
+        "2": {
+          "n": 272,
+          "mape_model": 1.26,
+          "mape_naive": 0.79,
+          "median_ape_model": 1.0,
+          "median_ape_naive": 0.63,
+          "win_rate": 32.4,
+          "direction_hit_rate": 54.8,
+          "band_coverage": 56.2
+        },
+        "3": {
+          "n": 272,
+          "mape_model": 1.26,
+          "mape_naive": 0.79,
+          "median_ape_model": 1.0,
+          "median_ape_naive": 0.63,
+          "win_rate": 32.4,
+          "direction_hit_rate": 54.8,
+          "band_coverage": 56.2
+        },
+        "4": {
+          "n": 282,
+          "mape_model": 1.83,
+          "mape_naive": 1.09,
+          "median_ape_model": 1.48,
+          "median_ape_naive": 0.81,
+          "win_rate": 29.4,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 42.2
+        },
+        "5": {
+          "n": 282,
+          "mape_model": 2.2,
+          "mape_naive": 1.35,
+          "median_ape_model": 1.93,
+          "median_ape_naive": 1.0,
+          "win_rate": 28.4,
+          "direction_hit_rate": 46.6,
+          "band_coverage": 32.6
+        },
+        "6": {
+          "n": 282,
+          "mape_model": 2.46,
+          "mape_naive": 1.47,
+          "median_ape_model": 2.0,
+          "median_ape_naive": 1.15,
+          "win_rate": 28.4,
+          "direction_hit_rate": 48.6,
+          "band_coverage": 33.0
+        },
+        "7": {
+          "n": 282,
+          "mape_model": 2.74,
+          "mape_naive": 1.64,
+          "median_ape_model": 2.21,
+          "median_ape_naive": 1.29,
+          "win_rate": 31.2,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 28.4
+        },
+        "8": {
+          "n": 282,
+          "mape_model": 3.05,
+          "mape_naive": 1.78,
+          "median_ape_model": 2.27,
+          "median_ape_naive": 1.48,
+          "win_rate": 28.7,
+          "direction_hit_rate": 46.5,
+          "band_coverage": 25.2
+        },
+        "9": {
+          "n": 282,
+          "mape_model": 3.05,
+          "mape_naive": 1.78,
+          "median_ape_model": 2.25,
+          "median_ape_naive": 1.47,
+          "win_rate": 28.4,
+          "direction_hit_rate": 46.8,
+          "band_coverage": 25.2
+        },
+        "10": {
+          "n": 282,
+          "mape_model": 3.05,
+          "mape_naive": 1.78,
+          "median_ape_model": 2.25,
+          "median_ape_naive": 1.47,
+          "win_rate": 28.4,
+          "direction_hit_rate": 46.8,
+          "band_coverage": 25.2
+        },
+        "11": {
+          "n": 282,
+          "mape_model": 3.58,
+          "mape_naive": 1.91,
+          "median_ape_model": 2.81,
+          "median_ape_naive": 1.54,
+          "win_rate": 26.6,
+          "direction_hit_rate": 46.8,
+          "band_coverage": 20.9
+        },
+        "12": {
+          "n": 282,
+          "mape_model": 3.84,
+          "mape_naive": 1.97,
+          "median_ape_model": 3.11,
+          "median_ape_naive": 1.5,
+          "win_rate": 25.5,
+          "direction_hit_rate": 45.4,
+          "band_coverage": 23.8
+        },
+        "13": {
+          "n": 282,
+          "mape_model": 4.09,
+          "mape_naive": 2.09,
+          "median_ape_model": 3.17,
+          "median_ape_naive": 1.66,
+          "win_rate": 28.4,
+          "direction_hit_rate": 47.7,
+          "band_coverage": 22.0
+        },
+        "14": {
+          "n": 282,
+          "mape_model": 4.36,
+          "mape_naive": 2.28,
+          "median_ape_model": 3.26,
+          "median_ape_naive": 1.84,
+          "win_rate": 26.6,
+          "direction_hit_rate": 50.4,
+          "band_coverage": 22.7
+        },
+        "15": {
+          "n": 282,
+          "mape_model": 4.62,
+          "mape_naive": 2.36,
+          "median_ape_model": 3.41,
+          "median_ape_naive": 1.92,
+          "win_rate": 27.7,
+          "direction_hit_rate": 46.8,
+          "band_coverage": 20.2
+        },
+        "16": {
+          "n": 282,
+          "mape_model": 4.63,
+          "mape_naive": 2.37,
+          "median_ape_model": 3.46,
+          "median_ape_naive": 1.92,
+          "win_rate": 27.3,
+          "direction_hit_rate": 46.5,
+          "band_coverage": 19.9
+        },
+        "17": {
+          "n": 282,
+          "mape_model": 4.63,
+          "mape_naive": 2.37,
+          "median_ape_model": 3.46,
+          "median_ape_naive": 1.92,
+          "win_rate": 27.3,
+          "direction_hit_rate": 46.5,
+          "band_coverage": 19.9
+        },
+        "18": {
+          "n": 282,
+          "mape_model": 5.1,
+          "mape_naive": 2.49,
+          "median_ape_model": 3.81,
+          "median_ape_naive": 1.91,
+          "win_rate": 30.9,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 19.5
+        },
+        "19": {
+          "n": 282,
+          "mape_model": 5.38,
+          "mape_naive": 2.6,
+          "median_ape_model": 4.29,
+          "median_ape_naive": 2.04,
+          "win_rate": 30.5,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 22.0
+        },
+        "20": {
+          "n": 282,
+          "mape_model": 5.54,
+          "mape_naive": 2.67,
+          "median_ape_model": 3.99,
+          "median_ape_naive": 2.09,
+          "win_rate": 30.5,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 20.6
+        },
+        "21": {
+          "n": 282,
+          "mape_model": 5.83,
+          "mape_naive": 2.82,
+          "median_ape_model": 4.21,
+          "median_ape_naive": 2.26,
+          "win_rate": 29.4,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 17.0
+        },
+        "22": {
+          "n": 282,
+          "mape_model": 5.98,
+          "mape_naive": 2.86,
+          "median_ape_model": 4.48,
+          "median_ape_naive": 2.24,
+          "win_rate": 29.4,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 17.7
+        },
+        "23": {
+          "n": 282,
+          "mape_model": 5.98,
+          "mape_naive": 2.85,
+          "median_ape_model": 4.43,
+          "median_ape_naive": 2.23,
+          "win_rate": 29.4,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 17.4
+        },
+        "24": {
+          "n": 282,
+          "mape_model": 5.98,
+          "mape_naive": 2.85,
+          "median_ape_model": 4.43,
+          "median_ape_naive": 2.23,
+          "win_rate": 29.4,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 17.4
+        },
+        "25": {
+          "n": 282,
+          "mape_model": 6.45,
+          "mape_naive": 2.9,
+          "median_ape_model": 4.64,
+          "median_ape_naive": 2.14,
+          "win_rate": 27.7,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 17.4
+        },
+        "26": {
+          "n": 282,
+          "mape_model": 6.62,
+          "mape_naive": 2.99,
+          "median_ape_model": 4.6,
+          "median_ape_naive": 2.33,
+          "win_rate": 28.4,
+          "direction_hit_rate": 49.3,
+          "band_coverage": 17.4
+        },
+        "27": {
+          "n": 282,
+          "mape_model": 6.78,
+          "mape_naive": 3.14,
+          "median_ape_model": 4.62,
+          "median_ape_naive": 2.58,
+          "win_rate": 29.1,
+          "direction_hit_rate": 48.9,
+          "band_coverage": 13.1
+        },
+        "28": {
+          "n": 282,
+          "mape_model": 6.89,
+          "mape_naive": 3.27,
+          "median_ape_model": 4.68,
+          "median_ape_naive": 2.87,
+          "win_rate": 31.6,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 14.9
+        },
+        "29": {
+          "n": 282,
+          "mape_model": 7.11,
+          "mape_naive": 3.33,
+          "median_ape_model": 4.45,
+          "median_ape_naive": 2.67,
+          "win_rate": 29.8,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 11.7
+        },
+        "30": {
+          "n": 282,
+          "mape_model": 7.13,
+          "mape_naive": 3.33,
+          "median_ape_model": 4.52,
+          "median_ape_naive": 2.61,
+          "win_rate": 29.8,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 11.7
+        },
+        "31": {
+          "n": 282,
+          "mape_model": 7.13,
+          "mape_naive": 3.33,
+          "median_ape_model": 4.52,
+          "median_ape_naive": 2.61,
+          "win_rate": 29.8,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 11.7
+        },
+        "32": {
+          "n": 282,
+          "mape_model": 7.47,
+          "mape_naive": 3.47,
+          "median_ape_model": 4.7,
+          "median_ape_naive": 2.74,
+          "win_rate": 30.9,
+          "direction_hit_rate": 48.6,
+          "band_coverage": 13.1
+        },
+        "33": {
+          "n": 282,
+          "mape_model": 7.6,
+          "mape_naive": 3.52,
+          "median_ape_model": 4.81,
+          "median_ape_naive": 2.98,
+          "win_rate": 30.5,
+          "direction_hit_rate": 49.6,
+          "band_coverage": 12.4
+        },
+        "34": {
+          "n": 282,
+          "mape_model": 7.62,
+          "mape_naive": 3.47,
+          "median_ape_model": 4.87,
+          "median_ape_naive": 2.92,
+          "win_rate": 31.6,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 12.4
+        },
+        "35": {
+          "n": 282,
+          "mape_model": 7.74,
+          "mape_naive": 3.6,
+          "median_ape_model": 4.86,
+          "median_ape_naive": 2.9,
+          "win_rate": 33.0,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 13.1
+        },
+        "36": {
+          "n": 282,
+          "mape_model": 7.83,
+          "mape_naive": 3.59,
+          "median_ape_model": 4.89,
+          "median_ape_naive": 2.91,
+          "win_rate": 30.1,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 11.3
+        },
+        "37": {
+          "n": 282,
+          "mape_model": 7.8,
+          "mape_naive": 3.56,
+          "median_ape_model": 4.88,
+          "median_ape_naive": 2.92,
+          "win_rate": 29.8,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 11.7
+        },
+        "38": {
+          "n": 282,
+          "mape_model": 7.8,
+          "mape_naive": 3.56,
+          "median_ape_model": 4.88,
+          "median_ape_naive": 2.92,
+          "win_rate": 29.8,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 11.7
+        },
+        "39": {
+          "n": 282,
+          "mape_model": 8.13,
+          "mape_naive": 3.64,
+          "median_ape_model": 4.99,
+          "median_ape_naive": 3.05,
+          "win_rate": 30.5,
+          "direction_hit_rate": 51.4,
+          "band_coverage": 12.4
+        },
+        "40": {
+          "n": 282,
+          "mape_model": 8.33,
+          "mape_naive": 3.69,
+          "median_ape_model": 4.97,
+          "median_ape_naive": 3.12,
+          "win_rate": 28.4,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 13.5
+        },
+        "41": {
+          "n": 282,
+          "mape_model": 8.44,
+          "mape_naive": 3.85,
+          "median_ape_model": 5.07,
+          "median_ape_naive": 3.12,
+          "win_rate": 31.6,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 14.9
+        },
+        "42": {
+          "n": 282,
+          "mape_model": 8.67,
+          "mape_naive": 3.98,
+          "median_ape_model": 5.07,
+          "median_ape_naive": 3.22,
+          "win_rate": 32.6,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 12.8
+        },
+        "43": {
+          "n": 282,
+          "mape_model": 8.77,
+          "mape_naive": 4.01,
+          "median_ape_model": 5.26,
+          "median_ape_naive": 3.21,
+          "win_rate": 31.6,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 14.5
+        },
+        "44": {
+          "n": 282,
+          "mape_model": 8.78,
+          "mape_naive": 4.02,
+          "median_ape_model": 5.26,
+          "median_ape_naive": 3.19,
+          "win_rate": 31.6,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 13.5
+        },
+        "45": {
+          "n": 282,
+          "mape_model": 8.78,
+          "mape_naive": 4.02,
+          "median_ape_model": 5.26,
+          "median_ape_naive": 3.19,
+          "win_rate": 31.6,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 13.5
+        },
+        "46": {
+          "n": 282,
+          "mape_model": 9.27,
+          "mape_naive": 4.11,
+          "median_ape_model": 5.45,
+          "median_ape_naive": 3.27,
+          "win_rate": 33.0,
+          "direction_hit_rate": 53.2,
+          "band_coverage": 12.1
+        },
+        "47": {
+          "n": 282,
+          "mape_model": 9.47,
+          "mape_naive": 4.26,
+          "median_ape_model": 5.33,
+          "median_ape_naive": 3.47,
+          "win_rate": 35.5,
+          "direction_hit_rate": 56.0,
+          "band_coverage": 13.8
+        },
+        "48": {
+          "n": 282,
+          "mape_model": 9.63,
+          "mape_naive": 4.23,
+          "median_ape_model": 5.47,
+          "median_ape_naive": 3.51,
+          "win_rate": 36.5,
+          "direction_hit_rate": 56.9,
+          "band_coverage": 12.8
+        },
+        "49": {
+          "n": 282,
+          "mape_model": 9.91,
+          "mape_naive": 4.39,
+          "median_ape_model": 5.85,
+          "median_ape_naive": 3.65,
+          "win_rate": 36.9,
+          "direction_hit_rate": 56.9,
+          "band_coverage": 14.5
+        },
+        "50": {
+          "n": 282,
+          "mape_model": 9.96,
+          "mape_naive": 4.34,
+          "median_ape_model": 5.88,
+          "median_ape_naive": 3.65,
+          "win_rate": 37.2,
+          "direction_hit_rate": 55.3,
+          "band_coverage": 16.3
+        },
+        "51": {
+          "n": 282,
+          "mape_model": 9.97,
+          "mape_naive": 4.36,
+          "median_ape_model": 5.88,
+          "median_ape_naive": 3.65,
+          "win_rate": 37.2,
+          "direction_hit_rate": 55.3,
+          "band_coverage": 16.0
+        },
+        "52": {
+          "n": 282,
+          "mape_model": 9.97,
+          "mape_naive": 4.36,
+          "median_ape_model": 5.88,
+          "median_ape_naive": 3.65,
+          "win_rate": 37.2,
+          "direction_hit_rate": 55.3,
+          "band_coverage": 16.0
+        },
+        "53": {
+          "n": 282,
+          "mape_model": 10.49,
+          "mape_naive": 4.46,
+          "median_ape_model": 6.04,
+          "median_ape_naive": 3.81,
+          "win_rate": 36.5,
+          "direction_hit_rate": 55.3,
+          "band_coverage": 14.5
+        },
+        "54": {
+          "n": 282,
+          "mape_model": 10.66,
+          "mape_naive": 4.48,
+          "median_ape_model": 5.76,
+          "median_ape_naive": 3.68,
+          "win_rate": 35.8,
+          "direction_hit_rate": 52.8,
+          "band_coverage": 13.8
+        },
+        "55": {
+          "n": 282,
+          "mape_model": 10.93,
+          "mape_naive": 4.61,
+          "median_ape_model": 6.0,
+          "median_ape_naive": 3.65,
+          "win_rate": 34.0,
+          "direction_hit_rate": 52.5,
+          "band_coverage": 12.8
+        },
+        "56": {
+          "n": 282,
+          "mape_model": 11.05,
+          "mape_naive": 4.73,
+          "median_ape_model": 5.92,
+          "median_ape_naive": 3.87,
+          "win_rate": 33.3,
+          "direction_hit_rate": 50.4,
+          "band_coverage": 14.2
+        },
+        "57": {
+          "n": 282,
+          "mape_model": 11.24,
+          "mape_naive": 4.77,
+          "median_ape_model": 6.19,
+          "median_ape_naive": 3.88,
+          "win_rate": 34.4,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 11.7
+        },
+        "58": {
+          "n": 282,
+          "mape_model": 11.25,
+          "mape_naive": 4.78,
+          "median_ape_model": 6.19,
+          "median_ape_naive": 3.88,
+          "win_rate": 34.4,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 11.7
+        },
+        "59": {
+          "n": 282,
+          "mape_model": 11.25,
+          "mape_naive": 4.78,
+          "median_ape_model": 6.19,
+          "median_ape_naive": 3.88,
+          "win_rate": 34.4,
+          "direction_hit_rate": 50.0,
+          "band_coverage": 11.7
+        },
+        "60": {
+          "n": 282,
+          "mape_model": 11.67,
+          "mape_naive": 4.89,
+          "median_ape_model": 6.62,
+          "median_ape_naive": 3.97,
+          "win_rate": 33.3,
+          "direction_hit_rate": 50.5,
+          "band_coverage": 10.3
+        },
+        "61": {
+          "n": 282,
+          "mape_model": 11.89,
+          "mape_naive": 4.99,
+          "median_ape_model": 6.52,
+          "median_ape_naive": 4.08,
+          "win_rate": 34.0,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 8.5
+        },
+        "62": {
+          "n": 282,
+          "mape_model": 11.95,
+          "mape_naive": 5.02,
+          "median_ape_model": 6.5,
+          "median_ape_naive": 4.4,
+          "win_rate": 35.1,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 9.6
+        },
+        "63": {
+          "n": 282,
+          "mape_model": 12.13,
+          "mape_naive": 5.18,
+          "median_ape_model": 6.65,
+          "median_ape_naive": 4.23,
+          "win_rate": 33.7,
+          "direction_hit_rate": 50.7,
+          "band_coverage": 9.6
+        },
+        "64": {
+          "n": 282,
+          "mape_model": 12.14,
+          "mape_naive": 5.23,
+          "median_ape_model": 6.59,
+          "median_ape_naive": 4.46,
+          "win_rate": 36.5,
+          "direction_hit_rate": 53.9,
+          "band_coverage": 8.5
+        },
+        "65": {
+          "n": 282,
+          "mape_model": 12.11,
+          "mape_naive": 5.2,
+          "median_ape_model": 6.61,
+          "median_ape_naive": 4.46,
+          "win_rate": 36.5,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 8.5
+        },
+        "66": {
+          "n": 282,
+          "mape_model": 12.11,
+          "mape_naive": 5.2,
+          "median_ape_model": 6.61,
+          "median_ape_naive": 4.46,
+          "win_rate": 36.5,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 8.5
+        },
+        "67": {
+          "n": 282,
+          "mape_model": 12.48,
+          "mape_naive": 5.3,
+          "median_ape_model": 6.9,
+          "median_ape_naive": 4.63,
+          "win_rate": 36.5,
+          "direction_hit_rate": 52.7,
+          "band_coverage": 9.2
+        },
+        "68": {
+          "n": 282,
+          "mape_model": 12.66,
+          "mape_naive": 5.32,
+          "median_ape_model": 6.91,
+          "median_ape_naive": 4.66,
+          "win_rate": 35.1,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 8.9
+        },
+        "69": {
+          "n": 282,
+          "mape_model": 12.7,
+          "mape_naive": 5.39,
+          "median_ape_model": 6.63,
+          "median_ape_naive": 4.54,
+          "win_rate": 36.5,
+          "direction_hit_rate": 53.2,
+          "band_coverage": 9.2
+        },
+        "70": {
+          "n": 282,
+          "mape_model": 12.93,
+          "mape_naive": 5.46,
+          "median_ape_model": 7.16,
+          "median_ape_naive": 4.57,
+          "win_rate": 34.8,
+          "direction_hit_rate": 51.8,
+          "band_coverage": 9.9
+        },
+        "71": {
+          "n": 282,
+          "mape_model": 12.98,
+          "mape_naive": 5.48,
+          "median_ape_model": 7.05,
+          "median_ape_naive": 4.61,
+          "win_rate": 36.2,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 11.3
+        },
+        "72": {
+          "n": 282,
+          "mape_model": 12.99,
+          "mape_naive": 5.49,
+          "median_ape_model": 7.05,
+          "median_ape_naive": 4.61,
+          "win_rate": 36.2,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 11.3
+        },
+        "73": {
+          "n": 282,
+          "mape_model": 12.99,
+          "mape_naive": 5.49,
+          "median_ape_model": 7.05,
+          "median_ape_naive": 4.61,
+          "win_rate": 36.2,
+          "direction_hit_rate": 51.1,
+          "band_coverage": 11.3
+        },
+        "74": {
+          "n": 282,
+          "mape_model": 13.38,
+          "mape_naive": 5.59,
+          "median_ape_model": 6.93,
+          "median_ape_naive": 4.62,
+          "win_rate": 34.4,
+          "direction_hit_rate": 52.1,
+          "band_coverage": 10.3
+        },
+        "75": {
+          "n": 282,
+          "mape_model": 13.58,
+          "mape_naive": 5.73,
+          "median_ape_model": 7.42,
+          "median_ape_naive": 4.77,
+          "win_rate": 34.8,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 10.6
+        },
+        "76": {
+          "n": 282,
+          "mape_model": 13.74,
+          "mape_naive": 5.76,
+          "median_ape_model": 7.55,
+          "median_ape_naive": 4.78,
+          "win_rate": 34.8,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 8.2
+        },
+        "77": {
+          "n": 282,
+          "mape_model": 13.94,
+          "mape_naive": 5.86,
+          "median_ape_model": 7.81,
+          "median_ape_naive": 5.05,
+          "win_rate": 35.1,
+          "direction_hit_rate": 52.8,
+          "band_coverage": 10.6
+        },
+        "78": {
+          "n": 282,
+          "mape_model": 14.11,
+          "mape_naive": 5.88,
+          "median_ape_model": 7.86,
+          "median_ape_naive": 5.03,
+          "win_rate": 34.0,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 9.6
+        },
+        "79": {
+          "n": 282,
+          "mape_model": 14.13,
+          "mape_naive": 5.88,
+          "median_ape_model": 7.86,
+          "median_ape_naive": 5.03,
+          "win_rate": 34.0,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 9.6
+        },
+        "80": {
+          "n": 282,
+          "mape_model": 14.13,
+          "mape_naive": 5.88,
+          "median_ape_model": 7.86,
+          "median_ape_naive": 5.03,
+          "win_rate": 34.0,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 9.6
+        },
+        "81": {
+          "n": 282,
+          "mape_model": 14.46,
+          "mape_naive": 5.96,
+          "median_ape_model": 7.99,
+          "median_ape_naive": 4.98,
+          "win_rate": 36.5,
+          "direction_hit_rate": 53.5,
+          "band_coverage": 8.9
+        },
+        "82": {
+          "n": 282,
+          "mape_model": 14.65,
+          "mape_naive": 6.03,
+          "median_ape_model": 7.83,
+          "median_ape_naive": 5.31,
+          "win_rate": 36.5,
+          "direction_hit_rate": 53.9,
+          "band_coverage": 11.7
+        },
+        "83": {
+          "n": 282,
+          "mape_model": 14.78,
+          "mape_naive": 6.06,
+          "median_ape_model": 7.94,
+          "median_ape_naive": 5.3,
+          "win_rate": 36.2,
+          "direction_hit_rate": 52.8,
+          "band_coverage": 12.4
+        },
+        "84": {
+          "n": 282,
+          "mape_model": 15.01,
+          "mape_naive": 6.09,
+          "median_ape_model": 7.89,
+          "median_ape_naive": 5.29,
+          "win_rate": 36.5,
+          "direction_hit_rate": 54.4,
+          "band_coverage": 10.6
+        },
+        "85": {
+          "n": 282,
+          "mape_model": 15.07,
+          "mape_naive": 6.07,
+          "median_ape_model": 8.25,
+          "median_ape_naive": 5.33,
+          "win_rate": 36.2,
+          "direction_hit_rate": 54.8,
+          "band_coverage": 9.2
+        },
+        "86": {
+          "n": 282,
+          "mape_model": 15.09,
+          "mape_naive": 6.08,
+          "median_ape_model": 8.25,
+          "median_ape_naive": 5.33,
+          "win_rate": 36.2,
+          "direction_hit_rate": 54.8,
+          "band_coverage": 9.2
+        },
+        "87": {
+          "n": 282,
+          "mape_model": 15.09,
+          "mape_naive": 6.08,
+          "median_ape_model": 8.25,
+          "median_ape_naive": 5.33,
+          "win_rate": 36.2,
+          "direction_hit_rate": 54.8,
+          "band_coverage": 9.2
+        },
+        "88": {
+          "n": 282,
+          "mape_model": 15.4,
+          "mape_naive": 6.18,
+          "median_ape_model": 8.67,
+          "median_ape_naive": 5.17,
+          "win_rate": 39.0,
+          "direction_hit_rate": 55.7,
+          "band_coverage": 9.2
+        },
+        "89": {
+          "n": 282,
+          "mape_model": 15.57,
+          "mape_naive": 6.27,
+          "median_ape_model": 8.63,
+          "median_ape_naive": 5.16,
+          "win_rate": 39.0,
+          "direction_hit_rate": 56.0,
+          "band_coverage": 8.9
+        },
+        "90": {
+          "n": 282,
+          "mape_model": 15.71,
+          "mape_naive": 6.29,
+          "median_ape_model": 8.25,
+          "median_ape_naive": 5.25,
+          "win_rate": 37.6,
+          "direction_hit_rate": 55.0,
+          "band_coverage": 8.5
+        }
+      }
+    }
+  }
+}

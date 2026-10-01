@@ -1,41 +1,56 @@
 """
 data_engine.py
 Handles:
-  - Live & historical price fetching via yfinance (BTC-USD, GC=F gold, IDR=X)
+  - Live & historical prices from Yahoo Finance (BTC-USD, GC=F gold, IDR=X)
   - Transaction history stored in a local SQLite database
-  - Portfolio P&L calculations
+  - Portfolio profit and loss, with the average-cost method
+
+Average-cost method, applied to each asset's transactions in date order:
+  - a BUY adds its units, and what they cost including the fee, to the position;
+  - a SELL takes units out at the position's average cost. What it sold for, minus
+    its fee, less what those units cost, is REALISED profit;
+  - the units still held, valued at the live price, less what they cost, are
+    UNREALISED profit. Total profit is the two added together.
+
+A value that needs a price or exchange rate that failed to load is None, never a
+guess, so the app can say it is missing instead of showing a wrong number.
 """
 
-import sqlite3
 import logging
-from datetime import datetime, timedelta
+import os
+import sqlite3
+from dataclasses import dataclass
+from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import pandas as pd
 import yfinance as yf
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = Path("portfolio.db")
+DB_PATH = Path(os.environ.get("STOIC_DB_PATH", "portfolio.db"))
 
 # Ticker symbols
 TICKERS = {
     "BTC":  "BTC-USD",   # Bitcoin in USD
-    "GOLD": "GC=F",      # Gold futures (USD per troy oz)
+    "GOLD": "GC=F",      # COMEX gold futures (USD per troy oz)
     "IDR":  "IDR=X",     # USD/IDR exchange rate
 }
+ASSETS = ("BTC", "GOLD")
+TX_TYPES = ("BUY", "SELL")
 
 GOLD_GRAMS_PER_OZ = 31.1035  # 1 troy oz = 31.1035 grams
+QTY_TOLERANCE = 1e-9  # float slack, so selling "everything" never leaves dust or an error
 
 
 # ---------------------------------------------------------------------------
 # Database bootstrap
 # ---------------------------------------------------------------------------
 
-def init_db(db_path: Path = DB_PATH) -> sqlite3.Connection:
+def init_db(db_path: Optional[Path] = None, seed_demo: bool = True) -> sqlite3.Connection:
     """Create tables if they don't exist and return a connection."""
-    conn = sqlite3.connect(str(db_path), check_same_thread=False)
+    conn = sqlite3.connect(str(db_path or DB_PATH), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("""
@@ -60,8 +75,8 @@ def init_db(db_path: Path = DB_PATH) -> sqlite3.Connection:
         )
     """)
     conn.commit()
-    # Seed demo transactions if table is empty
-    _seed_demo(conn)
+    if seed_demo:
+        _seed_demo(conn)
     return conn
 
 
@@ -89,7 +104,7 @@ def _seed_demo(conn: sqlite3.Connection):
 # ---------------------------------------------------------------------------
 
 def fetch_price(ticker_key: str) -> Optional[float]:
-    """Return the latest price for a ticker key (BTC | GOLD | IDR). USD-denominated."""
+    """Return the latest price for a ticker key (BTC | GOLD | IDR), or None if it failed to load."""
     symbol = TICKERS.get(ticker_key)
     if not symbol:
         raise ValueError(f"Unknown ticker key: {ticker_key}")
@@ -132,7 +147,7 @@ def fetch_historical(ticker_key: str, period: str = "1y") -> pd.DataFrame:
 
 
 def fetch_all_prices() -> dict[str, Optional[float]]:
-    """Return {BTC_USD, GOLD_USD_per_gram, IDR_per_USD}."""
+    """Return {BTC_USD, GOLD_USD_per_gram, IDR_per_USD}; a price that failed to load is None."""
     btc  = fetch_price("BTC")
     gold_oz = fetch_price("GOLD")
     idr  = fetch_price("IDR")
@@ -150,8 +165,81 @@ def to_idr(usd_value: Optional[float], idr_rate: Optional[float]) -> Optional[fl
 
 
 # ---------------------------------------------------------------------------
+# Average-cost position
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Position:
+    """One asset's position after its transactions are applied in date order. USD throughout."""
+    qty: float = 0.0
+    cost_basis: float = 0.0    # what the units still held cost, buy fees included
+    realised_pnl: float = 0.0  # profit taken on sells, after their fees
+    invested: float = 0.0      # everything ever paid on buys, fees included
+    fees: float = 0.0          # every fee paid
+
+    @property
+    def avg_cost(self) -> float:
+        return self.cost_basis / self.qty if self.qty > QTY_TOLERANCE else 0.0
+
+    def apply(self, tx_type: str, amount: float, price: float, fee: float = 0.0) -> float:
+        """Apply one transaction. Returns the realised profit of a SELL, 0 for a BUY."""
+        if tx_type == "BUY":
+            self.qty += amount
+            self.cost_basis += amount * price + fee
+            self.invested += amount * price + fee
+            self.fees += fee
+            return 0.0
+        if tx_type == "SELL":
+            if amount > self.qty + QTY_TOLERANCE:
+                raise ValueError(f"sells {amount:g} when only {self.qty:g} is held")
+            cost_of_sold = self.avg_cost * amount
+            realised = amount * price - fee - cost_of_sold
+            self.qty -= amount
+            self.cost_basis -= cost_of_sold
+            if self.qty <= QTY_TOLERANCE:  # sold out: clear float dust
+                self.qty = 0.0
+                self.cost_basis = 0.0
+            self.realised_pnl += realised
+            self.fees += fee
+            return realised
+        raise ValueError(f"unknown transaction type {tx_type!r}")
+
+
+def _fee(value) -> float:
+    return 0.0 if value is None or pd.isna(value) else float(value)
+
+
+def replay(txns: pd.DataFrame) -> tuple[Position, list[float]]:
+    """
+    Apply transactions (already in date order) to a fresh position.
+    Returns the position and each transaction's realised profit (0 for buys).
+    Raises ValueError, naming the date, if a sale would sell more than was held.
+    """
+    pos = Position()
+    realised = []
+    if txns is None or txns.empty:
+        return pos, realised
+    for row in txns.itertuples(index=False):
+        try:
+            realised.append(pos.apply(row.tx_type, float(row.amount), float(row.price_usd), _fee(row.fee_usd)))
+        except ValueError as exc:
+            raise ValueError(f"{row.asset} {row.tx_type} on {pd.Timestamp(row.ts).date()} {exc}") from None
+    return pos, realised
+
+
+# ---------------------------------------------------------------------------
 # Transaction helpers
 # ---------------------------------------------------------------------------
+
+def _to_ts(ts: Union[None, str, date, datetime]) -> str:
+    if ts is None:
+        return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(ts, datetime):
+        return ts.strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(ts, date):
+        return f"{ts.isoformat()} 00:00:00"
+    return pd.Timestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+
 
 def add_transaction(
     conn: sqlite3.Connection,
@@ -162,123 +250,173 @@ def add_transaction(
     price_idr: Optional[float] = None,
     fee_usd: float = 0.0,
     note: str = "",
-    ts: Optional[str] = None,
+    ts: Union[None, str, date, datetime] = None,
 ):
-    ts = ts or datetime.utcnow().isoformat(sep=" ", timespec="seconds")
+    """
+    Record a transaction. `ts` is the trade date (a date, datetime or ISO string; default
+    now, UTC). Trades on the same day are applied in the order they were entered.
+    Raises ValueError for bad input, or for a sale of more than is held on that date,
+    including a back-dated sale that would make a later sale impossible.
+    """
+    asset, tx_type = asset.upper(), tx_type.upper()
+    if asset not in ASSETS:
+        raise ValueError(f"asset must be one of {ASSETS}")
+    if tx_type not in TX_TYPES:
+        raise ValueError(f"type must be one of {TX_TYPES}")
+    if not amount or amount <= 0:
+        raise ValueError("amount must be more than 0")
+    if not price_usd or price_usd <= 0:
+        raise ValueError("price must be more than 0")
+    if fee_usd is None or fee_usd < 0:
+        raise ValueError("fee cannot be negative")
+    ts = _to_ts(ts)
+
+    # Replay the ledger with the new trade in place, so no sale ever exceeds holdings.
+    existing = get_transactions(conn, asset)
+    new_row = pd.DataFrame([{
+        "id": (existing["id"].max() + 1) if not existing.empty else 1,
+        "asset": asset, "tx_type": tx_type, "amount": float(amount),
+        "price_usd": float(price_usd), "fee_usd": float(fee_usd), "ts": pd.Timestamp(ts),
+    }])
+    trial = pd.concat([existing, new_row], ignore_index=True) if not existing.empty else new_row
+    trial = trial.assign(_day=trial["ts"].dt.normalize()).sort_values(["_day", "id"], kind="stable")
+    try:
+        replay(trial)
+    except ValueError as exc:
+        raise ValueError(f"Cannot record this trade: {exc}") from None
+
     conn.execute(
         """INSERT INTO transactions
            (asset, tx_type, amount, price_usd, price_idr, fee_usd, note, ts)
            VALUES (?,?,?,?,?,?,?,?)""",
-        (asset.upper(), tx_type.upper(), amount, price_usd, price_idr, fee_usd, note, ts),
+        (asset, tx_type, amount, price_usd, price_idr, fee_usd, note, ts),
     )
     conn.commit()
 
 
 def get_transactions(conn: sqlite3.Connection, asset: Optional[str] = None) -> pd.DataFrame:
+    """Transactions in the order they are applied: by trade date, then the order entered."""
     query = "SELECT * FROM transactions"
     params: tuple = ()
     if asset:
         query += " WHERE asset = ?"
         params = (asset.upper(),)
-    query += " ORDER BY ts"
+    query += " ORDER BY date(ts), id"
     rows = conn.execute(query, params).fetchall()
     if not rows:
         return pd.DataFrame()
     df = pd.DataFrame([dict(r) for r in rows])
-    df["ts"] = pd.to_datetime(df["ts"])
+    df["ts"] = pd.to_datetime(df["ts"], format="ISO8601")
     return df
+
+
+def transactions_with_pnl(conn: sqlite3.Connection) -> pd.DataFrame:
+    """All transactions, each with the realised profit it booked (sells only; NaN for buys)."""
+    frames = []
+    for asset in ASSETS:
+        txns = get_transactions(conn, asset)
+        if txns.empty:
+            continue
+        _, realised = replay(txns)
+        txns["realised_pnl"] = [
+            r if t == "SELL" else float("nan") for r, t in zip(realised, txns["tx_type"])
+        ]
+        frames.append(txns)
+    if not frames:
+        return pd.DataFrame()
+    out = pd.concat(frames, ignore_index=True)
+    out["_day"] = out["ts"].dt.normalize()
+    return out.sort_values(["_day", "id"], kind="stable").drop(columns="_day").reset_index(drop=True)
 
 
 # ---------------------------------------------------------------------------
 # Portfolio calculations
 # ---------------------------------------------------------------------------
 
+def _pct(numerator: Optional[float], denominator: Optional[float]) -> Optional[float]:
+    if numerator is None or not denominator:
+        return None
+    return numerator / denominator * 100
+
+
 def compute_portfolio(conn: sqlite3.Connection, prices: dict) -> dict:
     """
-    Returns a dict with holdings, cost basis, current value, P&L for each asset
-    plus totals in USD and IDR.
+    Per asset and in total: holdings, average cost, realised and unrealised profit in USD,
+    and the same in rupiah when the USD/IDR rate loaded. Anything that needs a missing
+    price or rate is None.
     """
-    idr = prices.get("IDR_per_USD") or 15_800  # fallback
+    idr = prices.get("IDR_per_USD")
 
     result = {}
     for asset, price_key in [("BTC", "BTC_USD"), ("GOLD", "GOLD_USD_per_gram")]:
-        df = get_transactions(conn, asset)
-        if df.empty:
-            result[asset] = {
-                "qty": 0, "avg_cost": 0, "cost_basis": 0,
-                "current_price": prices.get(price_key, 0) or 0,
-                "current_value_usd": 0, "pnl_usd": 0,
-                "current_value_idr": 0, "pnl_idr": 0,
-                "pnl_pct": 0,
-            }
-            continue
-
-        buys  = df[df["tx_type"] == "BUY"]
-        sells = df[df["tx_type"] == "SELL"]
-
-        qty_bought = buys["amount"].sum()
-        qty_sold   = sells["amount"].sum()
-        qty        = qty_bought - qty_sold
-
-        cost_basis = (buys["amount"] * buys["price_usd"]).sum() \
-                   - (sells["amount"] * sells["price_usd"]).sum()
-        avg_cost   = cost_basis / qty if qty > 0 else 0
-
-        cur_price       = prices.get(price_key) or 0
-        current_value   = qty * cur_price
-        pnl             = current_value - cost_basis
-        pnl_pct         = (pnl / cost_basis * 100) if cost_basis else 0
+        pos, _ = replay(get_transactions(conn, asset))
+        price = prices.get(price_key)
+        if price is not None:
+            value = pos.qty * price
+        else:
+            value = 0.0 if pos.qty == 0 else None  # nothing held: worth 0 whatever the price
+        unrealised = value - pos.cost_basis if value is not None else None
+        total_pnl = pos.realised_pnl + unrealised if unrealised is not None else None
 
         result[asset] = {
-            "qty":               qty,
-            "avg_cost":          avg_cost,
-            "cost_basis":        cost_basis,
-            "current_price":     cur_price,
-            "current_value_usd": current_value,
-            "pnl_usd":           pnl,
-            "current_value_idr": current_value * idr,
-            "pnl_idr":           pnl * idr,
-            "pnl_pct":           pnl_pct,
+            "qty":                pos.qty,
+            "avg_cost":           pos.avg_cost,
+            "cost_basis":         pos.cost_basis,
+            "invested":           pos.invested,
+            "fees":               pos.fees,
+            "current_price":      price,
+            "current_value_usd":  value,
+            "realised_pnl_usd":   pos.realised_pnl,
+            "unrealised_pnl_usd": unrealised,
+            "unrealised_pct":     _pct(unrealised, pos.cost_basis),
+            "pnl_usd":            total_pnl,
+            "pnl_pct":            _pct(total_pnl, pos.invested),
+            "current_value_idr":  to_idr(value, idr),
+            "pnl_idr":            to_idr(total_pnl, idr),
         }
 
-    # Totals
-    total_cost  = sum(v["cost_basis"] for v in result.values())
-    total_value = sum(v["current_value_usd"] for v in result.values())
-    total_pnl   = total_value - total_cost
+    def total(key: str) -> Optional[float]:
+        values = [result[a][key] for a in ASSETS]
+        return None if any(v is None for v in values) else sum(values)
 
+    total_value = total("current_value_usd")
+    total_pnl = total("pnl_usd")
     result["TOTAL"] = {
-        "cost_basis":        total_cost,
-        "current_value_usd": total_value,
-        "pnl_usd":           total_pnl,
-        "current_value_idr": total_value * idr,
-        "pnl_idr":           total_pnl  * idr,
-        "pnl_pct":           (total_pnl / total_cost * 100) if total_cost else 0,
+        "cost_basis":         total("cost_basis"),
+        "invested":           total("invested"),
+        "fees":               total("fees"),
+        "current_value_usd":  total_value,
+        "realised_pnl_usd":   total("realised_pnl_usd"),
+        "unrealised_pnl_usd": total("unrealised_pnl_usd"),
+        "pnl_usd":            total_pnl,
+        "pnl_pct":            _pct(total_pnl, total("invested")),
+        "current_value_idr":  to_idr(total_value, idr),
+        "pnl_idr":            to_idr(total_pnl, idr),
     }
     return result
 
 
 def daily_pnl_series(conn: sqlite3.Connection, asset: str, hist_df: pd.DataFrame) -> pd.Series:
-    """Approximate daily portfolio value series for one asset."""
+    """Total profit (realised + unrealised, USD) at each day's close, from the first trade on."""
     txns = get_transactions(conn, asset)
-    if txns.empty or hist_df.empty:
+    if txns.empty or hist_df is None or hist_df.empty:
         return pd.Series(dtype=float)
 
-    # Reindex hist_df to business days
-    close = hist_df["Close"].copy()
-    pnl_series = []
-    for date, price in close.items():
-        day = pd.Timestamp(date).normalize()
-        past = txns[txns["ts"].dt.normalize() <= day]
-        if past.empty:
-            continue
-        buys  = past[past["tx_type"] == "BUY"]
-        sells = past[past["tx_type"] == "SELL"]
-        qty   = buys["amount"].sum() - sells["amount"].sum()
-        cost  = (buys["amount"] * buys["price_usd"]).sum() \
-              - (sells["amount"] * sells["price_usd"]).sum()
-        pnl_series.append({"date": day, "value": qty * price, "cost": cost})
+    close = hist_df["Close"].dropna()
+    days = pd.DatetimeIndex(pd.to_datetime(close.index))
+    if days.tz is not None:
+        days = days.tz_localize(None)
+    days = days.normalize()
+    trade_days = txns["ts"].dt.normalize()
 
-    if not pnl_series:
-        return pd.Series(dtype=float)
-    df2 = pd.DataFrame(pnl_series).set_index("date")
-    return df2["value"] - df2["cost"]
+    pos = Position()
+    applied = 0
+    points = {}
+    for day, price in zip(days, close.to_numpy(dtype=float)):
+        while applied < len(txns) and trade_days.iloc[applied] <= day:
+            row = txns.iloc[applied]
+            pos.apply(row["tx_type"], float(row["amount"]), float(row["price_usd"]), _fee(row["fee_usd"]))
+            applied += 1
+        if applied:
+            points[day] = pos.realised_pnl + pos.qty * price - pos.cost_basis
+    return pd.Series(points, dtype=float)

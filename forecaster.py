@@ -1,190 +1,153 @@
 """
 forecaster.py
-Time-series price forecasting using Facebook Prophet (or NeuralProphet if available).
-Returns a forecast DataFrame and a confidence-band plot.
+Price forecasts with Prophet, and the backtest track record that says how far
+to trust them.
+
+The app shows one model: Prophet with PROPHET_SETTINGS below. backtest.py
+scores this exact function against a "no change" guess (the price stays where
+it is) and writes results/backtest.json, which the app reads to show each
+forecast's track record next to it.
 """
 
+import json
 import logging
+import warnings
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
-# Try NeuralProphet first, fall back to Prophet, then to a naive trend model
-_BACKEND = "none"
 try:
-    from neuralprophet import NeuralProphet   # type: ignore
-    _BACKEND = "neuralprophet"
-    logger.info("Forecaster: using NeuralProphet")
-except ImportError:
-    try:
-        from prophet import Prophet            # type: ignore
-        _BACKEND = "prophet"
-        logger.info("Forecaster: using Prophet")
-    except ImportError:
-        logger.warning("Forecaster: neither Prophet nor NeuralProphet found — using naive trend")
+    from prophet import Prophet  # type: ignore
+
+    PROPHET_AVAILABLE = True
+except ImportError:  # pragma: no cover - depends on the environment
+    Prophet = None  # type: ignore
+    PROPHET_AVAILABLE = False
+    logger.warning("Forecaster: prophet is not installed, so forecasts are turned off")
+
+# cmdstanpy prints two INFO lines for every fit. Giving its logger a handler before
+# its first use stops it from attaching its own console handler and resetting the
+# level; its warnings still reach the app's log through the root logger.
+_cmdstanpy_log = logging.getLogger("cmdstanpy")
+_cmdstanpy_log.addHandler(logging.NullHandler())
+_cmdstanpy_log.setLevel(logging.WARNING)
+
+# The settings the app has always used. backtest.py imports this module, so the
+# backtest always measures the model the app shows.
+PROPHET_SETTINGS = dict(
+    daily_seasonality=False,
+    weekly_seasonality=True,
+    yearly_seasonality=True,
+    changepoint_prior_scale=0.15,
+    interval_width=0.80,
+)
+MIN_HISTORY_ROWS = 30
+BACKTEST_PATH = Path(__file__).resolve().parent / "results" / "backtest.json"
 
 
-# ---------------------------------------------------------------------------
-# Core forecast function
-# ---------------------------------------------------------------------------
-
-def forecast(
-    hist_df: pd.DataFrame,
-    periods: int = 30,
-    asset_name: str = "asset",
-) -> Optional[pd.DataFrame]:
-    """
-    Given a historical OHLCV DataFrame (indexed by date, with a 'Close' column),
-    return a forecast DataFrame with columns:
-        ds, yhat, yhat_lower, yhat_upper
-    Returns None on failure.
-    """
-    if hist_df is None or hist_df.empty:
-        return None
-    if "Close" not in hist_df.columns:
-        return None
-
-    # Build prophet-style input
+def to_prophet_frame(hist_df: pd.DataFrame) -> pd.DataFrame:
+    """Daily OHLCV frame (DatetimeIndex + 'Close') -> Prophet's ds/y frame, one row per day."""
     df = hist_df["Close"].dropna().reset_index()
     df.columns = ["ds", "y"]
-    df["ds"] = pd.to_datetime(df["ds"]).dt.tz_localize(None)
-    df = df.sort_values("ds").reset_index(drop=True)
-
-    if len(df) < 30:
-        logger.warning("Forecaster: not enough data (%d rows)", len(df))
-        return _naive_forecast(df, periods)
-
-    if _BACKEND == "neuralprophet":
-        return _neuralprophet_forecast(df, periods)
-    elif _BACKEND == "prophet":
-        return _prophet_forecast(df, periods)
-    else:
-        return _naive_forecast(df, periods)
+    ds = pd.to_datetime(df["ds"])
+    if ds.dt.tz is not None:
+        ds = ds.dt.tz_localize(None)
+    df["ds"] = ds.dt.normalize()
+    df = df.drop_duplicates("ds", keep="last")
+    return df.sort_values("ds").reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# Backend implementations
-# ---------------------------------------------------------------------------
-
-def _prophet_forecast(df: pd.DataFrame, periods: int) -> Optional[pd.DataFrame]:
-    try:
-        from prophet import Prophet
-        import warnings
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            model = Prophet(
-                daily_seasonality=False,
-                weekly_seasonality=True,
-                yearly_seasonality=True,
-                changepoint_prior_scale=0.15,
-                interval_width=0.80,
-            )
-            model.fit(df)
-            future  = model.make_future_dataframe(periods=periods)
-            forecast_df = model.predict(future)
-            result = forecast_df[["ds", "yhat", "yhat_lower", "yhat_upper"]].copy()
-            result["ds"] = pd.to_datetime(result["ds"])
-            return result
-    except Exception as exc:
-        logger.error("Prophet forecast failed: %s", exc)
-        return _naive_forecast(df, periods)
+def trades_on_weekends(ds: pd.Series) -> bool:
+    """True for assets priced every day (Bitcoin), False for weekday-only ones (gold futures)."""
+    return bool((pd.to_datetime(ds).dt.dayofweek >= 5).mean() > 0.05)
 
 
-def _neuralprophet_forecast(df: pd.DataFrame, periods: int) -> Optional[pd.DataFrame]:
-    try:
-        from neuralprophet import NeuralProphet
-        model = NeuralProphet(
-            n_forecasts=periods,
-            n_lags=14,
-            yearly_seasonality=True,
-            weekly_seasonality=True,
-            daily_seasonality=False,
-            quantiles=[0.1, 0.9],
-        )
-        split = int(len(df) * 0.85)
-        train_df = df.iloc[:split]
-        model.fit(train_df, freq="D", progress="none")
-        future = model.make_future_dataframe(df, periods=periods)
-        fcst   = model.predict(future)
-
-        # NeuralProphet column naming
-        yhat_col = "yhat1"
-        lo_col   = next((c for c in fcst.columns if "10" in c), None)
-        hi_col   = next((c for c in fcst.columns if "90" in c), None)
-
-        result = pd.DataFrame({
-            "ds":         pd.to_datetime(fcst["ds"]),
-            "yhat":       fcst[yhat_col],
-            "yhat_lower": fcst[lo_col] if lo_col else fcst[yhat_col] * 0.92,
-            "yhat_upper": fcst[hi_col] if hi_col else fcst[yhat_col] * 1.08,
-        })
-        return result
-    except Exception as exc:
-        logger.error("NeuralProphet forecast failed: %s", exc)
-        return _naive_forecast(df, periods)
-
-
-def _naive_forecast(df: pd.DataFrame, periods: int) -> pd.DataFrame:
+def prophet_forecast(df: pd.DataFrame, periods: int) -> pd.DataFrame:
     """
-    Linear + trend-noise naive model as a last resort.
-    Fits a simple linear regression on log-price and extrapolates.
+    Fit Prophet on a ds/y frame and forecast up to `periods` calendar days after its last date.
+
+    Returns the future rows only (ds, yhat, yhat_lower, yhat_upper). Weekday-only assets
+    get no weekend rows, because there is no price to forecast on those days. Raises if
+    Prophet is missing or fails; the caller decides what to show.
     """
-    n = len(df)
-    log_y = np.log(df["y"].clip(lower=1e-6).values)
-    x     = np.arange(n)
-
-    # Fit linear trend on last 90 days (or all data)
-    window = min(90, n)
-    x_w = x[-window:]
-    y_w = log_y[-window:]
-    coeffs = np.polyfit(x_w - x_w.mean(), y_w, 1)
-
-    last_date = df["ds"].iloc[-1]
-    future_x  = np.arange(1, periods + 1)
-    log_pred  = coeffs[0] * (future_x + x[-1] - x_w.mean()) + coeffs[1]
-    pred      = np.exp(log_pred)
-
-    # Historical residual std for confidence bands
-    hist_pred = np.exp(np.polyval(coeffs, x - x_w.mean()))
-    resid_std = np.std(log_y - np.polyval(coeffs, x - x_w.mean()))
-    band_pct  = np.exp(1.28 * resid_std)   # ~80% interval
-
-    future_dates = pd.date_range(last_date + pd.Timedelta(days=1), periods=periods, freq="D")
-    historical = pd.DataFrame({
-        "ds":         df["ds"],
-        "yhat":       np.exp(np.polyval(coeffs, x - x_w.mean())),
-        "yhat_lower": np.exp(np.polyval(coeffs, x - x_w.mean())) / band_pct,
-        "yhat_upper": np.exp(np.polyval(coeffs, x - x_w.mean())) * band_pct,
-    })
-    future_rows = pd.DataFrame({
-        "ds":         future_dates,
-        "yhat":       pred,
-        "yhat_lower": pred / band_pct,
-        "yhat_upper": pred * band_pct,
-    })
-    return pd.concat([historical, future_rows], ignore_index=True)
+    if not PROPHET_AVAILABLE:
+        raise RuntimeError("prophet is not installed")
+    last = pd.Timestamp(df["ds"].max())
+    future = pd.DataFrame(
+        {"ds": pd.date_range(last + pd.Timedelta(days=1), periods=periods, freq="D")}
+    )
+    if not trades_on_weekends(df["ds"]):
+        future = future[future["ds"].dt.dayofweek < 5]
+    if future.empty:
+        raise ValueError(f"no trading days in the next {periods} days")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model = Prophet(**PROPHET_SETTINGS)
+        model.fit(df[["ds", "y"]])
+        fc = model.predict(future)
+    return fc[["ds", "yhat", "yhat_lower", "yhat_upper"]].reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# Forecast summary helper
-# ---------------------------------------------------------------------------
+def forecast(hist_df: Optional[pd.DataFrame], periods: int = 30) -> Optional[pd.DataFrame]:
+    """The app's forecast: future rows, or None when there is too little data or Prophet fails."""
+    if hist_df is None or hist_df.empty or "Close" not in hist_df.columns:
+        return None
+    df = to_prophet_frame(hist_df)
+    if len(df) < MIN_HISTORY_ROWS:
+        logger.warning("Forecaster: only %d days of history, need %d", len(df), MIN_HISTORY_ROWS)
+        return None
+    try:
+        return prophet_forecast(df, periods)
+    except Exception as exc:
+        logger.error("Forecaster: Prophet failed: %s", exc)
+        return None
 
-def forecast_summary(fcst_df: pd.DataFrame, current_price: float) -> dict:
-    """Return a dict with key forecast stats for display."""
+
+def forecast_summary(fcst_df: Optional[pd.DataFrame], current_price: Optional[float]) -> dict:
+    """Headline numbers for the last day of the forecast."""
     if fcst_df is None or fcst_df.empty:
         return {}
-    last_fcst  = fcst_df.iloc[-1]
-    mid_fcst   = fcst_df.iloc[len(fcst_df) // 2]
-    change_pct = (last_fcst["yhat"] - current_price) / current_price * 100 if current_price else 0
+    last = fcst_df.iloc[-1]
+    change_pct = None
+    if current_price:
+        change_pct = (float(last["yhat"]) - current_price) / current_price * 100
     return {
-        "target_price":    last_fcst["yhat"],
-        "target_lower":    last_fcst["yhat_lower"],
-        "target_upper":    last_fcst["yhat_upper"],
-        "mid_price":       mid_fcst["yhat"],
-        "change_pct":      change_pct,
-        "horizon_days":    (fcst_df["ds"].iloc[-1] - fcst_df["ds"].iloc[0]).days,
-        "bullish":         change_pct > 0,
+        "target_date": pd.Timestamp(last["ds"]),
+        "target_price": float(last["yhat"]),
+        "target_lower": float(last["yhat_lower"]),
+        "target_upper": float(last["yhat_upper"]),
+        "change_pct": change_pct,
+    }
+
+
+def load_backtest(path: Path = BACKTEST_PATH) -> Optional[dict]:
+    """results/backtest.json as a dict, or None when the backtest has not been run."""
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def track_record(
+    backtest: Optional[dict], asset: str, horizon_days: int, history_period: str
+) -> Optional[dict]:
+    """
+    How this forecast did in the backtest for this asset and horizon. None when the
+    backtest did not cover this setup: it measures the app's default history only.
+    """
+    if not backtest or backtest.get("method", {}).get("history_period") != history_period:
+        return None
+    asset_result = backtest.get("assets", {}).get(asset)
+    if not asset_result:
+        return None
+    stats = asset_result.get("by_horizon", {}).get(str(int(horizon_days)))
+    if not stats:
+        return None
+    return {
+        **stats,
+        "first_origin": asset_result["first_origin"],
+        "last_origin": asset_result["last_origin"],
     }
